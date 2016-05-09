@@ -44,19 +44,37 @@ class CrossengageClient(object):
         """
         return self.__sync_user(payload)
 
+    def delete_user(self, payload):
+        """
+        Delete User given its id.
+        :param payload: dict of payload (id only)
+        :return: status code
+        """
+        return self.__sync_user(payload, False)
+
     def __sync_user(self, payload):
         self.request_url = self.API_URL + self.USER_URL + payload['id']
         response = self.__create_request(payload)
         return response
 
-    def __create_request(self, payload):
+    def __create_request(self, payload, put_type=True):
         self.headers = {
             'X-XNG-AuthToken': self.client_token,
             'Content-Type': 'application/json',
         }
-        r = self.requests.put(
+
+        if put_type:
+            r = self.requests.put(
+                self.request_url,
+                data=json.dumps(payload),
+                headers=self.headers
+            )
+            return r.json()
+
+        r = self.requests.delete(
             self.request_url,
             data=json.dumps(payload),
             headers=self.headers
         )
-        return r.json()
+
+        return r.status_code
