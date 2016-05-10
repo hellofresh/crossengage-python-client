@@ -6,6 +6,8 @@
 # crossengage-python-client
 Python client for Crossengage's API
 
+### Owner
+azh@hellofresh.com
 
 ### How to install
 
