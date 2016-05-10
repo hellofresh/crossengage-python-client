@@ -9,14 +9,17 @@ Python client for Crossengage's API
 
 [ ![Codeship build](https://codeship.com/projects/c70724e0-f905-0133-a8ad-268d110da048/status?branch=master)](https://codeship.com/projects/151121)
 ### Owner
-azh@hellofresh.com
+[Alexander Zhilyaev](mailto:azh@hellofresh.com)
 
 ### How to install
 
-Make sure you have Python 2.7.11+ installed
+Make sure you have Python 2.7.11+ installed and run:
 
-1. `git clone git@github.com:hellofresh/crossengage-python-client.git`
-2. Run `setup.py`
+```
+$ git clone git@github.com:hellofresh/crossengage-python-client.git
+$ cd crossengage-python-client
+$ python setup.py install
+```
 
 ### How to use
 
@@ -45,10 +48,10 @@ else:
     print response['errors'] # for issues on API side (validation error and etc)
 
 ```
-See another examples in `examples.py`
+For more examples, check `examples.py`.
 
-### Tests
+### How to test
 
-To run unit tests (install [nosetests](http://nose.readthedocs.org/) module before) just run the following command in the repository root directory:
+To run the unit tests, make sure you have the [nose](http://nose.readthedocs.org/) module instaled and run the following from the repository root directory:
 
 `$ nosetests`
