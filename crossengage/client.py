@@ -34,7 +34,7 @@ class CrossengageClient(object):
         :param payload: dict of payload (email, id, firstName, lastName, birthday ..)
         :return: json response, for example: {"id":"123", "xngGlobalUserId": "xng-id", "success": "true}
         """
-        return self.__sync_user(payload)
+        return self.__sync_user(payload, put_type=True)
 
     def update_user(self, payload):
         """
@@ -42,7 +42,7 @@ class CrossengageClient(object):
         :param payload: dict of payload (email, id, firstName, lastName, birthday ..)
         :return: json response, for example: {"id":"123", "xngGlobalUserId": "xng-id", "success": "true}
         """
-        return self.__sync_user(payload)
+        return self.__sync_user(payload, put_type=True)
 
     def delete_user(self, payload):
         """
@@ -50,16 +50,17 @@ class CrossengageClient(object):
         :param payload: dict of payload (id only)
         :return: status code
         """
-        return self.__sync_user(payload, False)
+        return self.__sync_user(payload, put_type=False)
 
-    def __sync_user(self, payload):
+    def __sync_user(self, payload, put_type):
         self.request_url = self.API_URL + self.USER_URL + payload['id']
-        response = self.__create_request(payload)
+        response = self.__create_request(payload, put_type)
         return response
 
     def __create_request(self, payload, put_type=True):
         self.headers = {
             'X-XNG-AuthToken': self.client_token,
+            'X-XNG-ApiVersion': '1',
             'Content-Type': 'application/json',
         }
 

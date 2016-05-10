@@ -50,3 +50,15 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual('https://api.crossengage.io/users/1235', self.client.request_url)
         self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
         self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+
+    def test_delete_user(self):
+        payload = {
+            'id': '1236',
+        }
+        self.client.requests = Mock(status_code=204)
+        status_code = self.client.delete_user(payload=payload)
+
+        self.assertEqual('https://api.crossengage.io/users/1236', self.client.request_url)
+        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
