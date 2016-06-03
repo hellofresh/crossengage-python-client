@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 NAME = "crossengage-client"
-VERSION = "0.0.1"
+VERSION = "1.1.0"
 
 REQUIRES = []
 

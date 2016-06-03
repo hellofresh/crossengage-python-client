@@ -29,7 +29,7 @@ from crossengage.client import CrossengageClient
 client = CrossengageClient(client_token='YOUR_TOKEN')
 
 # 1. Create/update user 
-response = client.create_user(payload={
+response = client.update_user(payload={
     'id': '1',
     'email': 'test@example.com',
     'firstName': 'First name',
@@ -40,8 +40,7 @@ response = client.create_user(payload={
 })
 
 if response['success']:
-    # do your magic
-    pass
+    print response
 else:
     # something went wrong
     print response['client_error']  # for client issues (connection timeout and etc)

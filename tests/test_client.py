@@ -1,9 +1,7 @@
 import unittest
 
-from mock import Mock
-from requests import RequestException
-
 from crossengage.client import CrossengageClient
+from requests import RequestException
 
 
 class DummyRequest(object):
@@ -15,6 +13,12 @@ class DummyRequest(object):
         return self
 
     def delete(self, request_url, data, headers):
+        return self
+
+    def post(self, request_url, data, headers):
+        return self
+
+    def get(self, request_url, data, headers):
         return self
 
     @staticmethod
@@ -53,9 +57,9 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.request_url, '')
         self.assertEqual(self.client.headers, {})
 
-    def test_create_update_user(self):
+    def test_update_user(self):
         self.client.requests = DummyRequest()
-        response = self.client.create_user(payload=self.payload)
+        response = self.client.update_user(payload=self.payload)
 
         self.assertEqual('https://api.crossengage.io/users/1234', self.client.request_url)
         self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
@@ -66,9 +70,9 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(response['client_error'], '')
         self.assertEqual(response['success'], True)
 
-    def test_create_update_user_request_exception(self):
+    def test_update_user_request_exception(self):
         self.client.requests = DummyRequestException()
-        response = self.client.create_user(payload=self.payload)
+        response = self.client.update_user(payload=self.payload)
 
         self.assertEqual('https://api.crossengage.io/users/1234', self.client.request_url)
         self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
@@ -89,6 +93,58 @@ class TestCrossengageClient(unittest.TestCase):
         response = self.client.delete_user(payload)
 
         self.assertEqual('https://api.crossengage.io/users/1', self.client.request_url)
+        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+
+        self.assertEqual(response['status_code'], 204)
+        self.assertEqual(response['errors'], '')
+        self.assertEqual(response['client_error'], '')
+        self.assertEqual(response['success'], True)
+
+    def test_add_user_attribute(self):
+        dummy_request = DummyRequest()
+        dummy_request.status_code = 200
+        self.client.requests = dummy_request
+        response = self.client.add_user_attribute(
+            attribute_name='attr_name',
+            attribute_type=CrossengageClient.ATTRIBUTE_ARRAY,
+            nested_type=CrossengageClient.ATTRIBUTE_STRING
+        )
+
+        self.assertEqual('https://api.crossengage.io/users/attributes', self.client.request_url)
+        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+
+        self.assertEqual(response['status_code'], 200)
+        self.assertEqual(response['errors'], '')
+        self.assertEqual(response['client_error'], '')
+        self.assertEqual(response['success'], True)
+
+    def test_list_user_attributes(self):
+        dummy_request = DummyRequest()
+        dummy_request.status_code = 200
+        self.client.requests = dummy_request
+        response = self.client.list_user_attributes(offset=0, limit=10)
+
+        self.assertEqual('https://api.crossengage.io/users/attributes', self.client.request_url)
+        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+
+        self.assertEqual(response['status_code'], 200)
+        self.assertEqual(response['errors'], '')
+        self.assertEqual(response['client_error'], '')
+        self.assertEqual(response['success'], True)
+
+    def test_delete_user_attributes(self):
+        dummy_request = DummyRequest()
+        dummy_request.status_code = 204
+        self.client.requests = dummy_request
+        response = self.client.delete_user_attribute(attribute_id=123)
+
+        self.assertEqual('https://api.crossengage.io/users/attributes/123', self.client.request_url)
         self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
         self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
         self.assertEqual(self.client.headers['Content-Type'], 'application/json')
