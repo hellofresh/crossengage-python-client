@@ -104,12 +104,9 @@ class CrossengageClient(object):
             :return: json dict response, for example: {"attributes": [{"id": 1234, "name": "traits.name",
             "attributeType": "STRING" }], "total": "1"}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes'
-        payload = {
-            'offset': offset,
-            'limit': limit,
-        }
-        return self.__create_request(payload, self.REQUEST_GET)
+        self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes?offset=' + str(offset) + '&limit=' + str(
+            limit)
+        return self.__create_request(None, self.REQUEST_GET)
 
     def delete_user_attribute(self, attribute_id):
         """
@@ -141,7 +138,7 @@ class CrossengageClient(object):
                 r = self.requests.put(self.request_url, data=json.dumps(payload), headers=self.headers)
 
             if request_type == self.REQUEST_GET:
-                r = self.requests.get(self.request_url, data=json.dumps(payload), headers=self.headers)
+                r = self.requests.get(self.request_url, headers=self.headers)
 
             if request_type == self.REQUEST_POST:
                 r = self.requests.post(self.request_url, data=json.dumps(payload), headers=self.headers)

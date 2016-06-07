@@ -18,7 +18,7 @@ class DummyRequest(object):
     def post(self, request_url, data, headers):
         return self
 
-    def get(self, request_url, data, headers):
+    def get(self, request_url, headers):
         return self
 
     @staticmethod
@@ -128,7 +128,7 @@ class TestCrossengageClient(unittest.TestCase):
         self.client.requests = dummy_request
         response = self.client.list_user_attributes(offset=0, limit=10)
 
-        self.assertEqual('https://api.crossengage.io/users/attributes', self.client.request_url)
+        self.assertEqual('https://api.crossengage.io/users/attributes?offset=0&limit=10', self.client.request_url)
         self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
         self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
         self.assertEqual(self.client.headers['Content-Type'], 'application/json')
