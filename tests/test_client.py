@@ -78,7 +78,6 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 0)
-        self.assertEqual(response['errors'], '')
         self.assertEqual(response['success'], False)
 
     def test_delete_user(self):
@@ -96,8 +95,6 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 204)
-        self.assertEqual(response['errors'], '')
-        self.assertEqual(response['success'], True)
 
     def test_add_user_attribute(self):
         dummy_request = DummyRequest()
@@ -145,5 +142,3 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 204)
-        self.assertEqual(response['errors'], '')
-        self.assertEqual(response['success'], True)
