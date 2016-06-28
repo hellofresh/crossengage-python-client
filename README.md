@@ -28,9 +28,9 @@ from crossengage.client import CrossengageClient
 
 client = CrossengageClient(client_token='YOUR_TOKEN')
 
-# 1. Create/update user 
-response = client.update_user(payload={
-    'id': '1',
+# 1. Create / update new user and send
+response = client.update_user(user={
+    'id': '2',
     'email': 'test@example.com',
     'firstName': 'First name',
     'lastName': 'Last name',
@@ -40,11 +40,9 @@ response = client.update_user(payload={
 })
 
 if response['success']:
-    print response
+    print 'Create / Update Successful!'
 else:
-    # something went wrong
-    print response['client_error']  # for client issues (connection timeout and etc)
-    print response['errors'] # for issues on API side (validation error and etc)
+    print response['errors']
 
 ```
 For more examples, check `examples.py`.

@@ -13,9 +13,9 @@ class CrossengageClient(object):
 
      from crossengage.client import CrossengageClient
      client = CrossengageClient(client_token='Place your token here')
-     r = client.update_user(payload={'here_payload_key': 'here_payload_value'})
+     r = client.update_user(user={'here_user_key': 'here_user_value'})
 
-     r = client.delete_user(payload={'here_payload_key': 'here_payload_value'})
+     r = client.delete_user(user={'here_user_key': 'here_user_value'})
 
      r = client.add_user_attribute(
              attribute_name='our_new_attribute',
@@ -28,11 +28,8 @@ class CrossengageClient(object):
      r = client.delete_user_attribute(attribute_id=123)
 
      if r['success']:
-         # do you magic here
          print r
      else:
-         # some went wrong, see r.errors
-         print r['client_error']
          print r['errors']
 
     """
@@ -60,24 +57,37 @@ class CrossengageClient(object):
         self.request_url = ''
         self.headers = {}
 
-    def update_user(self, payload):
+    def update_user(self, user):
         # type: (dict) -> dict
         """
         Create / Update User given its id.
-        :param payload: dict of payload (email, id, firstName, lastName, birthday, createdAt, gender)
+        :param user: dict of payload (email, id, firstName, lastName, birthday, createdAt, gender)
         :return: json dict response, for example: {"status_code": 200, "id":"123", "xngGlobalUserId": "xng-id",
          "success": "true}
         """
-        return self.__sync_user(payload=payload, request_type=self.REQUEST_PUT)
+        self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
+        return self.__create_request(payload=user, request_type=self.REQUEST_PUT)
 
-    def delete_user(self, payload):
+    def update_users_bulk(self, users):
+        # type: (list) -> dict
+        """
+        Create / Update User bulk.
+        :param users: list of user dicts [(email, id, firstName, lastName, birthday, createdAt, gender)]
+        :return: json dict response
+        """
+        payload = {'updated': users}
+        self.request_url = self.API_URL + self.USER_ENDPOINT + 'batch'
+        return self.__create_request(payload=payload, request_type=self.REQUEST_POST)
+
+    def delete_user(self, user):
         # type: (dict) -> dict
         """
         Delete User given its id.
-        :param payload: dict of payload (id)
+        :param user: dict of payload (id)
         :return: json dict response, for example: {"status_code": 200}
         """
-        return self.__sync_user(payload=payload, request_type=self.REQUEST_DELETE)
+        self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
+        return self.__create_request(payload=user, request_type=self.REQUEST_DELETE)
 
     def add_user_attribute(self, attribute_name, attribute_type, nested_type):
         """
@@ -118,13 +128,6 @@ class CrossengageClient(object):
         payload = {}
         return self.__create_request(payload, self.REQUEST_DELETE)
 
-    def __sync_user(self, payload, request_type):
-        if 'id' in payload:
-            self.request_url = self.API_URL + self.USER_ENDPOINT + payload['id']
-            return self.__create_request(payload, request_type)
-
-        return {'success': False, 'client_error': 'Missing id in payload', 'errors': ''}
-
     def __create_request(self, payload, request_type):
         self.headers = {
             'X-XNG-AuthToken': self.client_token,
@@ -136,35 +139,34 @@ class CrossengageClient(object):
         try:
             if request_type == self.REQUEST_PUT:
                 r = self.requests.put(self.request_url, data=json.dumps(payload), headers=self.headers)
+                response = r.json()
 
             if request_type == self.REQUEST_GET:
                 r = self.requests.get(self.request_url, headers=self.headers)
+                response = r.json()
 
             if request_type == self.REQUEST_POST:
                 r = self.requests.post(self.request_url, data=json.dumps(payload), headers=self.headers)
+                response = r.json()
 
             if request_type == self.REQUEST_DELETE:
                 r = self.requests.delete(self.request_url, data=json.dumps(payload), headers=self.headers)
+                response = {}
 
-            response = r.json()
             response['status_code'] = r.status_code
-            response['client_error'] = ''
-
-            if response['status_code'] == 200 or response['status_code'] == 204:
-                response['success'] = True
 
         except RequestException as e:
             # handle all requests HTTP exceptions
-            response = {'client_error': e.message}
+            response = {'success': False, 'errors': {'client_error': e.message}}
         except Exception as e:
             # handle all exceptions which can be on API side
-            response = {'client_error': (e.message + '. Response: ' + r.text)}
+            response = {'success': False, 'errors': {'client_error': e.message + '. Response: ' + r.text}}
 
-        if 'errors' not in response:
-            response['errors'] = ''
         if 'status_code' not in response:
             response['status_code'] = 0
-        if 'success' not in response:
+
+        if response['status_code'] == 500:
             response['success'] = False
+            response['errors'] = {'server_error': response['message']}
 
         return response
