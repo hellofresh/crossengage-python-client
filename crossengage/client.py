@@ -157,7 +157,7 @@ class CrossengageClient(object):
 
         except RequestException as e:
             # handle all requests HTTP exceptions
-            response = {'success': False, 'errors': {'client_error': e.message}}
+            response = {'success': False, 'errors': {'connection_error': e.message}}
         except Exception as e:
             # handle all exceptions which can be on API side
             response = {'success': False, 'errors': {'client_error': e.message + '. Response: ' + r.text}}
