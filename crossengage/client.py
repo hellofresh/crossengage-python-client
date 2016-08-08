@@ -1,4 +1,6 @@
 import json
+import logging
+
 import requests
 
 from requests.exceptions import RequestException
@@ -154,6 +156,12 @@ class CrossengageClient(object):
                 response = {}
 
             response['status_code'] = r.status_code
+
+            logging.debug("Request object", extra={
+                'crossengage_url': r.request.url,
+                'crossengage_headers': r.request.headers,
+                'crossengage_body': r.request.body
+            })
 
         except RequestException as e:
             # handle all requests HTTP exceptions
