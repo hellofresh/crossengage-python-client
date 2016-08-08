@@ -1,5 +1,7 @@
 import unittest
 
+from mock import Mock
+
 from crossengage.client import CrossengageClient
 from requests import RequestException
 
@@ -8,6 +10,7 @@ class DummyRequest(object):
     def __init__(self):
         self.status_code = 200
         self.text = 'Some text'
+        self.request = Mock()
 
     def put(self, request_url, data, headers):
         return self
