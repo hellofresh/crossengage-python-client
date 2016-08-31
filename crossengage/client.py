@@ -29,6 +29,10 @@ class CrossengageClient(object):
 
      r = client.delete_user_attribute(attribute_id=123)
 
+     r = client.send_events(
+        user={'here_user_key': 'here_user_value'},
+        events=[{'foo': 'bar'}, {'alpha': 'beta'}])
+
      if r['success']:
          print r
      else:
@@ -39,6 +43,7 @@ class CrossengageClient(object):
     API_VERSION = '1'
 
     USER_ENDPOINT = '/users/'
+    EVENTS_ENDPOINT = '/events/'
 
     REQUEST_GET = 'get'
     REQUEST_PUT = 'put'
@@ -129,6 +134,22 @@ class CrossengageClient(object):
         self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes/' + str(attribute_id)
         payload = {}
         return self.__create_request(payload, self.REQUEST_DELETE)
+
+    def send_events(self, user, events):
+        # type: (dict), (list) -> dict
+        """
+        Send up to 50 events for a given user.
+        :param user: user dict
+        :param events: list of event payloads
+        :return: json dict response, for example: {"status_code": 200}
+        """
+        self.request_url = self.API_URL + self.EVENTS_ENDPOINT
+        payload = {
+            "externalId": user['id'],
+            "events": events
+        }
+        return self.__create_request(payload, self.REQUEST_POST)
+
 
     def __create_request(self, payload, request_type):
         self.headers = {
