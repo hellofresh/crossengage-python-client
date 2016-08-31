@@ -159,4 +159,4 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
         self.assertEqual(self.client.headers['Content-Type'], 'application/json')
 
-        self.assertEqual(response['status_code'], 204)
+        self.assertEqual(response['status_code'], 202)
