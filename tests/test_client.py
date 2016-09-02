@@ -145,3 +145,18 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 204)
+
+    def test_send_events(self):
+        dummy_request = DummyRequest()
+        dummy_request.status_code = 202
+        self.client.requests = dummy_request
+
+        events = [{'foo': 'bar'}, {'xpto': 123}]
+        response = self.client.send_events(self.user, events)
+
+        self.assertEqual('https://api.crossengage.io/events/', self.client.request_url)
+        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+
+        self.assertEqual(response['status_code'], 202)
