@@ -1,8 +1,9 @@
 import unittest
 
+from crossengage.client import CrossengageClient
 from mock import Mock
 
-from crossengage.client import CrossengageClient
+
 from requests import RequestException
 
 
@@ -152,7 +153,7 @@ class TestCrossengageClient(unittest.TestCase):
         self.client.requests = dummy_request
 
         events = [{'foo': 'bar'}, {'xpto': 123}]
-        response = self.client.send_events(self.user, events)
+        response = self.client.send_events(email='email@sample.com', events=events)
 
         self.assertEqual('https://api.crossengage.io/events/', self.client.request_url)
         self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
