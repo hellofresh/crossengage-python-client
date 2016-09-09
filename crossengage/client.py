@@ -135,21 +135,29 @@ class CrossengageClient(object):
         payload = {}
         return self.__create_request(payload, self.REQUEST_DELETE)
 
-    def send_events(self, user, events):
+    def send_events(self, email, events, business_unit=None, external_id=None):
         # type: (dict), (list) -> dict
         """
         Send up to 50 events for a given user.
-        :param user: user dict
+        :param email: user email
         :param events: list of event payloads
+        :param business_unit: businessUnit of user in crossengage
+        :param external_id: id of user in crossengage
         :return: json dict response, for example: {"status_code": 200}
         """
         self.request_url = self.API_URL + self.EVENTS_ENDPOINT
         payload = {
-            "externalId": user['id'],
+            "email": email,
             "events": events
         }
-        return self.__create_request(payload, self.REQUEST_POST)
 
+        if external_id is not None:
+            payload['externalId'] = external_id
+
+        if business_unit is not None:
+            payload['businessUnit'] = external_id
+
+        return self.__create_request(payload, self.REQUEST_POST)
 
     def __create_request(self, payload, request_type):
         self.headers = {
@@ -162,19 +170,19 @@ class CrossengageClient(object):
         try:
             if request_type == self.REQUEST_PUT:
                 r = self.requests.put(self.request_url, data=json.dumps(payload), headers=self.headers)
-                response = r.json()
 
             if request_type == self.REQUEST_GET:
                 r = self.requests.get(self.request_url, headers=self.headers)
-                response = r.json()
 
             if request_type == self.REQUEST_POST:
                 r = self.requests.post(self.request_url, data=json.dumps(payload), headers=self.headers)
-                response = r.json()
 
             if request_type == self.REQUEST_DELETE:
                 r = self.requests.delete(self.request_url, data=json.dumps(payload), headers=self.headers)
-                response = {}
+
+            response = {}
+            if r.text != '':
+                response = r.json()
 
             response['status_code'] = r.status_code
 
