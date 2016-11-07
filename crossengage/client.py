@@ -155,7 +155,7 @@ class CrossengageClient(object):
             payload['externalId'] = external_id
 
         if business_unit is not None:
-            payload['businessUnit'] = external_id
+            payload['businessUnit'] = business_unit
 
         return self.__create_request(payload, self.REQUEST_POST)
 
