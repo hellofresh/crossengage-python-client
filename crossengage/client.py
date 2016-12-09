@@ -96,14 +96,14 @@ class CrossengageClient(object):
         self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
         return self.__create_request(payload=user, request_type=self.REQUEST_DELETE)
 
-    def delete_user_by_xng_id(self, xng_id):
+    def delete_user_by_xng_id(self, user):
         # type: (dict) -> dict
         """
         Delete User given its xngId.
-        :param xng_id: xngId
+        :param user: dict of payload (xng_id)
         :return: json dict response, for example: {"status_code": 200}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'xngId/' + user['id']
+        self.request_url = self.API_URL + self.USER_ENDPOINT + 'xngId/' + user['xngId']
         return self.__create_request(payload=user, request_type=self.REQUEST_DELETE)
 
     def add_user_attribute(self, attribute_name, attribute_type, nested_type):
