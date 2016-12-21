@@ -135,6 +135,25 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(response['errors'], '')
         self.assertEqual(response['success'], True)
 
+    def test_add_nested_user_attribute(self):
+        dummy_request = DummyRequest()
+        dummy_request.status_code = 200
+        self.client.requests = dummy_request
+        response = self.client.add_nested_user_attribute(
+            parent_name='parent_attribute',
+            attribute_name='main_attribute',
+            attribute_type=CrossengageClient.ATTRIBUTE_STRING
+        )
+
+        self.assertEqual('https://api.crossengage.io/users/attributes', self.client.request_url)
+        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+
+        self.assertEqual(response['status_code'], 200)
+        self.assertEqual(response['errors'], '')
+        self.assertEqual(response['success'], True)
+
     def test_list_user_attributes(self):
         dummy_request = DummyRequest()
         dummy_request.status_code = 200

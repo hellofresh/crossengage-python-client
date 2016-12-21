@@ -123,6 +123,23 @@ class CrossengageClient(object):
         }
         return self.__create_request(payload, self.REQUEST_POST)
 
+    def add_nested_user_attribute(self, parent_name, attribute_name, attribute_type):
+        """
+        Add new nested user attribute.
+        :param parent_name: parent name of attribute
+        :param attribute_name: name of new nested attribute
+        :param attribute_type: type of new nested attribute
+        :return: json dict response, for example: {"id": 123, "name":"traits.foobar", "attributeType": "ARRAY",
+         "success": "true}
+        """
+        self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes'
+        payload = {
+            'name': attribute_name,
+            'attributeType': attribute_type,
+            'parentName': parent_name
+        }
+        return self.__create_request(payload, self.REQUEST_POST)
+
     def list_user_attributes(self, offset, limit):
         """
             List of user attributes.
