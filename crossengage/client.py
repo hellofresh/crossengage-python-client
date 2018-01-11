@@ -43,7 +43,7 @@ class CrossengageClient(object):
     API_VERSION = '1'
 
     USER_ENDPOINT = '/users/'
-    EVENTS_ENDPOINT = '/events/'
+    EVENTS_ENDPOINT = '/events'
 
     REQUEST_GET = 'get'
     REQUEST_PUT = 'put'
