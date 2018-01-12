@@ -63,7 +63,11 @@ class CrossengageClient(object):
         self.client_token = client_token
         self.requests = requests
         self.request_url = ''
-        self.headers = {}
+        self.headers = {
+            'X-XNG-AuthToken': self.client_token,
+            'X-XNG-ApiVersion': self.API_VERSION,
+            'Content-Type': 'application/json',
+        }
 
     def update_user(self, user):
         # type: (dict) -> dict
@@ -198,7 +202,7 @@ class CrossengageClient(object):
         Delete or Update up to 1000 users in batch.
         :param delete_list: user that should get deleted
         :param update_list: user that should get updated
-        :return: json dict response, for example:
+        :return: integer status_code, json dict response
         {
           "updated": [
             {
@@ -248,15 +252,9 @@ class CrossengageClient(object):
             headers=self.headers
         )
 
-        return r.json()
+        return r.status_code, r.json()
 
     def __create_request(self, payload, request_type):
-        self.headers = {
-            'X-XNG-AuthToken': self.client_token,
-            'X-XNG-ApiVersion': self.API_VERSION,
-            'Content-Type': 'application/json',
-        }
-
         r = '{}'
         try:
             if request_type == self.REQUEST_PUT:
