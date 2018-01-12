@@ -43,7 +43,8 @@ class CrossengageClient(object):
     API_VERSION = '1'
 
     USER_ENDPOINT = '/users/'
-    EVENTS_ENDPOINT = '/events'
+    EVENTS_ENDPOINT = '/events/'
+    BULK_ENDPOINT = '/users/batch'
 
     REQUEST_GET = 'get'
     REQUEST_PUT = 'put'
@@ -62,7 +63,11 @@ class CrossengageClient(object):
         self.client_token = client_token
         self.requests = requests
         self.request_url = ''
-        self.headers = {}
+        self.headers = {
+            'X-XNG-AuthToken': self.client_token,
+            'X-XNG-ApiVersion': self.API_VERSION,
+            'Content-Type': 'application/json',
+        }
 
     def update_user(self, user):
         # type: (dict) -> dict
@@ -192,13 +197,64 @@ class CrossengageClient(object):
 
         return self.__create_request(payload, self.REQUEST_POST)
 
-    def __create_request(self, payload, request_type):
-        self.headers = {
-            'X-XNG-AuthToken': self.client_token,
-            'X-XNG-ApiVersion': self.API_VERSION,
-            'Content-Type': 'application/json',
+    def batch_process(self, delete_list=[], update_list=[]):
+        """
+        Delete or Update up to 1000 users in batch.
+        :param delete_list: user that should get deleted
+        :param update_list: user that should get updated
+        :return: integer status_code, json dict response
+        {
+          "updated": [
+            {
+              "id": "fb85fe50-a528-11e7-abc4-cec278b6b50a",
+              "xngId": "088818b3-445e-41a6-a7e1-cf86c8cdfbe4",
+              "success": false,
+              "errors": [
+                {
+                  "field": "id",
+                  "type": "NOT_NULL"
+                },
+                {
+                  "field": "email",
+                  "type": "WRONG_FORMAT"
+                }
+              ]
+            }
+          ],
+          "deleted": [
+            {
+              "id": "78ad0e3e-19e6-4ec1-84a7-b2c860c05387",
+              "xngId": "ae86796f-8aca-4f65-a5dc-dea9a269f2a5",
+              "success": false,
+              "errors": [
+                {
+                  "field": "id",
+                  "type": "NOT_NULL"
+                },
+                {
+                  "field": "email",
+                  "type": "WRONG_FORMAT"
+                }
+              ]
+            }
+          ]
+        }
+        """
+        self.request_url = self.API_URL + self.BULK_ENDPOINT
+        payload = {
+            'updated': update_list,
+            'deleted': delete_list,
         }
 
+        r = self.requests.post(
+            self.request_url,
+            data=json.dumps(payload),
+            headers=self.headers
+        )
+
+        return r.status_code, r.json()
+
+    def __create_request(self, payload, request_type):
         r = '{}'
         try:
             if request_type == self.REQUEST_PUT:
