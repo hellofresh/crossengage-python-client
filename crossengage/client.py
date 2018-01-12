@@ -43,7 +43,7 @@ class CrossengageClient(object):
     API_VERSION = '1'
 
     USER_ENDPOINT = '/users/'
-    EVENTS_ENDPOINT = '/events/'
+    EVENTS_ENDPOINT = '/events'
 
     REQUEST_GET = 'get'
     REQUEST_PUT = 'put'
@@ -162,7 +162,7 @@ class CrossengageClient(object):
         payload = {}
         return self.__create_request(payload, self.REQUEST_DELETE)
 
-    def send_events(self, email, events, business_unit=None, external_id=None):
+    def send_events(self, events, email=None, external_id=None, business_unit=None):
         # type: (dict), (list) -> dict
         """
         Send up to 50 events for a given user.
@@ -173,10 +173,16 @@ class CrossengageClient(object):
         :return: json dict response, for example: {"status_code": 200}
         """
         self.request_url = self.API_URL + self.EVENTS_ENDPOINT
+
+        if email is None and external_id is None:
+            raise ValueError('email or external_id required for sending events')
+
         payload = {
-            "email": email,
             "events": events
         }
+
+        if email is not None:
+            payload['email'] = email
 
         if external_id is not None:
             payload['externalId'] = external_id
