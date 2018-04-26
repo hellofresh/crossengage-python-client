@@ -11,10 +11,7 @@ build: clean virtualenv requirements test-requirments
 test: unittests
 
 unittests:
-	PYTHONPATH=$(CURDIR)/src nosetests -d -w tests/unit -v
-
-functionaltests:
-	PYTHONPATH=$(CURDIR)/src nosetests -d -w tests/functional -v
+	PYTHONPATH=$(CURDIR) nosetests -d -w tests -v
 
 virtualenv:
 	virtualenv $(CURDIR)/$(VENV)
