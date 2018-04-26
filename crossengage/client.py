@@ -175,16 +175,20 @@ class CrossengageClient(object):
         :param user_id: id of user in your database
         :return: json dict response, for example: {"status_code": 200}
         """
-        self.request_url = "{}{}".format(self.API_URL + self.EVENTS_ENDPOINT)
+        self.request_url = "{}{}".format(self.API_URL, self.EVENTS_ENDPOINT)
 
         if email is None and user_id is None:
             raise ValueError('email or external_id required for sending events')
 
         payload = {
-            "id": user_id,
-            "email": email,
             "events": events
         }
+
+        if email is not None:
+            payload['email'] = email
+
+        if user_id is not None:
+            payload['id'] = user_id
 
         if business_unit is not None:
             payload['businessUnit'] = business_unit
@@ -280,13 +284,13 @@ class CrossengageClient(object):
             response = {'success': False, 'errors': {'connection_error': e.message}}
         except Exception as e:
             # handle all exceptions which can be on API side
-            response = {'success': False, 'errors': {'client_error': e.message + '. Response: ' + r.text}}
+            response = {'success': False, 'errors': {'client_error': e.message}}
 
         if 'status_code' not in response:
             response['status_code'] = 0
 
         if response['status_code'] == 500:
             response['success'] = False
-            response['errors'] = {'server_error': response['message']}
+            response['errors'] = {'server_error': 'error on crossengage side'}
 
         return response
