@@ -2,7 +2,6 @@ import json
 import logging
 
 import requests
-
 from requests.exceptions import RequestException
 
 
@@ -167,30 +166,25 @@ class CrossengageClient(object):
         payload = {}
         return self.__create_request(payload, self.REQUEST_DELETE)
 
-    def send_events(self, events, email=None, external_id=None, business_unit=None):
-        # type: (dict), (list) -> dict
+    def send_events(self, events, email=None, user_id=None, business_unit=None):
         """
         Send up to 50 events for a given user.
         :param email: user email
         :param events: list of event payloads
         :param business_unit: businessUnit of user in crossengage
-        :param external_id: id of user in crossengage
+        :param user_id: id of user in your database
         :return: json dict response, for example: {"status_code": 200}
         """
-        self.request_url = self.API_URL + self.EVENTS_ENDPOINT
+        self.request_url = "{}{}".format(self.API_URL + self.EVENTS_ENDPOINT)
 
-        if email is None and external_id is None:
+        if email is None and user_id is None:
             raise ValueError('email or external_id required for sending events')
 
         payload = {
+            "id": user_id,
+            "email": email,
             "events": events
         }
-
-        if email is not None:
-            payload['email'] = email
-
-        if external_id is not None:
-            payload['externalId'] = external_id
 
         if business_unit is not None:
             payload['businessUnit'] = business_unit

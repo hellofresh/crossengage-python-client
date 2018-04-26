@@ -7,7 +7,6 @@
 # crossengage-python-client
 Python client for Crossengage's API
 
-[ ![Codeship build](https://codeship.com/projects/c70724e0-f905-0133-a8ad-268d110da048/status?branch=master)](https://codeship.com/projects/151121)
 ### Owner
 [Alexander Zhilyaev](mailto:azh@hellofresh.com)
 
