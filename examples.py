@@ -87,3 +87,6 @@ if response['status_code'] == 200:
     print response['attributes']
 else:
     print response['errors']
+
+# 7. Add nested attribute
+print client.add_nested_user_attribute('nested_attribute', 'main_attribute', client.ATTRIBUTE_STRING)
