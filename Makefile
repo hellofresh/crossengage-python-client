@@ -11,7 +11,7 @@ build: clean virtualenv requirements test-requirments
 test: unittests
 
 unittests:
-	PYTHONPATH=$(CURDIR) nosetests -d -w tests -v --with-coverage --cover-package ./crossengage
+	PYTHONPATH=$(CURDIR) nosetests -d -w tests -v --with-coverage --cover-package ./crossengage codecov
 
 virtualenv:
 	virtualenv $(CURDIR)/$(VENV)
