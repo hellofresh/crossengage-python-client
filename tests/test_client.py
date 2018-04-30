@@ -245,7 +245,32 @@ class TestCrossengageClient(unittest.TestCase):
 
         self.assertEqual(response['status_code'], 204)
 
-    def test_send_events(self):
+    def test_send_events_with_user_id(self):
+        response = Mock(status_code=202, text='{"success": true, "errors": ""}')
+        response.json.return_value = {'success': True, 'errors': ''}
+
+        events = [{'foo': 'bar'}, {'xpto': 123}]
+        payload = {
+            'events': events,
+            'id': 'some_id',
+            'businessUnit': 'de',
+        }
+
+        requests = Mock()
+        requests.post.return_value = response
+        self.client.requests = requests
+
+        response = self.client.send_events(user_id='some_id', business_unit='de', events=events)
+
+        requests.post.assert_called_once_with('https://api.crossengage.io/events', data=json.dumps(payload), headers={
+            'X-XNG-AuthToken': 'SOME_TOKEN',
+            'X-XNG-ApiVersion': '1',
+            'Content-Type': 'application/json',
+        })
+
+        self.assertEqual(response['status_code'], 202)
+
+    def test_send_events_with_email(self):
         response = Mock(status_code=202, text='{"success": true, "errors": ""}')
         response.json.return_value = {'success': True, 'errors': ''}
 
@@ -268,6 +293,11 @@ class TestCrossengageClient(unittest.TestCase):
         })
 
         self.assertEqual(response['status_code'], 202)
+
+    def test_send_events_value_error(self):
+        events = [{'foo': 'bar'}, {'xpto': 123}]
+        self.client.requests = Mock()
+        self.assertRaises(ValueError, self.client.send_events, events=events)
 
     def test_send_events_request_exception_raised(self):
         response = Mock(status_code=202, text='{"success": true, "errors": ""}')
