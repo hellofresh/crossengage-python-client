@@ -88,6 +88,65 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(response['status_code'], 0)
         self.assertEqual(response['success'], False)
 
+    def test_update_users_bulk(self):
+        response = Mock(
+            status_code=200,
+            text='{"updated": [{"id": "updated_id","xngId": "updated_xngId","success": true}],'
+                 '"deleted": [{"id": "deleted_id","xngId": "deleted_xngId","success": true}]}')
+
+        response.json.return_value = json.loads(response.text)
+
+        users = [{'email': 'email@sample.com', 'attribute_key': 'attribute_value'}]
+        payload = {'updated': users}
+
+        requests = Mock()
+        requests.post.return_value = response
+        self.client.requests = requests
+
+        response = self.client.update_users_bulk(users)
+
+        requests.post.assert_called_once_with('https://api.crossengage.io/users/batch', data=json.dumps(payload),
+                                              headers={
+                                                  'X-XNG-AuthToken': 'SOME_TOKEN',
+                                                  'X-XNG-ApiVersion': '1',
+                                                  'Content-Type': 'application/json',
+                                              })
+
+        self.assertEqual(response['status_code'], 200)
+        self.assertEqual(response['updated'][0]['id'], 'updated_id')
+        self.assertEqual(response['updated'][0]['success'], True)
+
+    def test_update_users_bulk_bad_request(self):
+        response = Mock(
+            status_code=400,
+            text='{"updated": [{"id": "updated_id","xngId": "updated_xngId","success": false,'
+                 '"errors": [{"field": "id","type": "NOT_NULL"},{"field": "email","type": "WRONG_FORMAT"}]}],'
+                 '"deleted": [{"id": "deleted_id","xngId": "deleted_xngId","success": false,'
+                 '"errors": [{"field": "id","type": "NOT_NULL"},{"field": "email","type": "WRONG_FORMAT"}]}]}')
+
+        response.json.return_value = json.loads(response.text)
+
+        users = [{'email': 'email@sample.com', 'attribute_key': 'attribute_value'}]
+        payload = {'updated': users}
+
+        requests = Mock()
+        requests.post.return_value = response
+        self.client.requests = requests
+
+        response = self.client.update_users_bulk(users)
+
+        requests.post.assert_called_once_with('https://api.crossengage.io/users/batch', data=json.dumps(payload),
+                                              headers={
+                                                  'X-XNG-AuthToken': 'SOME_TOKEN',
+                                                  'X-XNG-ApiVersion': '1',
+                                                  'Content-Type': 'application/json',
+                                              })
+
+        self.assertEqual(response['status_code'], 400)
+        self.assertEqual(response['updated'][0]['id'], 'updated_id')
+        self.assertEqual(response['updated'][0]['success'], False)
+        self.assertEqual(response['success'], False)
+
     def test_delete_user(self):
         user = {
             'id': '1',

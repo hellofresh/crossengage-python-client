@@ -82,6 +82,7 @@ class CrossengageClient(object):
     def update_users_bulk(self, users):
         # type: (list) -> dict
         """
+        Warning! Deprecated method, use batch_process instead.
         Create / Update User bulk.
         :param users: list of user dicts [(email, id, firstName, lastName, birthday, createdAt, gender)]
         :return: json dict response
@@ -292,5 +293,8 @@ class CrossengageClient(object):
         if response['status_code'] == 500:
             response['success'] = False
             response['errors'] = {'server_error': 'error on crossengage side'}
+
+        if response['status_code'] > 202:
+            response['success'] = False
 
         return response
