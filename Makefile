@@ -1,26 +1,17 @@
-VENV?=venv
-
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  test       to run unit tests"
-	@echo "  build      to build the working virtual environment, and to install requirements for development"
-	@echo "  clean      to remove the created virtualenv folder"
+	@echo "  build      to install requirements for development"
 
-build: clean virtualenv requirements test-requirments
+build: requirements test-requirements
 
 test: unittests
 
 unittests:
 	PYTHONPATH=$(CURDIR) nosetests -d -w tests -v --with-coverage --cover-package ./crossengage
 
-virtualenv:
-	virtualenv $(CURDIR)/$(VENV)
-
-clean:
-	rm -rf $(CURDIR)/$(VENV)
-
 requirements:
-	$(CURDIR)/$(VENV)/bin/pip install -r requirements.txt
+	pip install -r requirements.txt
 
-test-requirments:
-	$(CURDIR)/$(VENV)/bin/pip install -r dev-requirements.txt
+test-requirements:
+	pip install -r test-requirements.txt
