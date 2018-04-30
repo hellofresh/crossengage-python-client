@@ -1,3 +1,4 @@
 unittest2
 mock
 nose
+codecov
