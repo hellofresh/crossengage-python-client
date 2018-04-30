@@ -1,4 +1,4 @@
-VENV?=env
+VENV?=venv
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -11,7 +11,7 @@ build: clean virtualenv requirements test-requirments
 test: unittests
 
 unittests:
-	PYTHONPATH=$(CURDIR) nosetests -d -w tests -v --with-coverage --cover-package ./crossengage codecov
+	PYTHONPATH=$(CURDIR) nosetests -d -w tests -v --with-coverage --cover-package ./crossengage
 
 virtualenv:
 	virtualenv $(CURDIR)/$(VENV)
