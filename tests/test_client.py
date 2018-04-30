@@ -415,3 +415,33 @@ class TestCrossengageClient(unittest.TestCase):
                 'type': 'WRONG_VALUE',
             }
         ])
+
+    def test_batch_process(self):
+        response = Mock(
+            status_code=200,
+            text='{"updated": [{"id": "updated_id","xngId": "updated_xngId","success": true}],'
+                 '"deleted": [{"id": "deleted_id","xngId": "deleted_xngId","success": true}]}')
+
+        response.json.return_value = json.loads(response.text)
+
+        updated_user = {'id': 'updated_id', 'email': 'updated@sample.com', 'attribute_key': 'value'}
+        deleted_user = {'id': 'deleted_id', 'email': 'deleted@sample.com', 'attribute_key': 'value'}
+        payload = {'updated': [updated_user], 'deleted': [deleted_user]}
+
+        requests = Mock()
+        requests.post.return_value = response
+        self.client.requests = requests
+
+        result = self.client.batch_process(
+            delete_list=[deleted_user],
+            update_list=[updated_user],
+        )
+
+        requests.post.assert_called_once_with('https://api.crossengage.io/users/batch', data=json.dumps(payload),
+                                              headers={
+                                                  'X-XNG-AuthToken': 'SOME_TOKEN',
+                                                  'X-XNG-ApiVersion': '1',
+                                                  'Content-Type': 'application/json',
+                                              })
+
+        self.assertEqual(result, (200, json.loads(response.text)))
