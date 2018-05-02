@@ -5,9 +5,30 @@
 </p>
 
 # crossengage-python-client
-Python client for Crossengage's API
+[![Build Status](https://travis-ci.org/hellofresh/crossengage-python-client.svg?branch=master)](https://travis-ci.org/hellofresh/crossengage-python-client)
+[![codecov](https://codecov.io/gh/hellofresh/crossengage-python-client/branch/master/graph/badge.svg)](https://codecov.io/gh/hellofresh/crossengage-python-client)
 
-[ ![Codeship build](https://codeship.com/projects/c70724e0-f905-0133-a8ad-268d110da048/status?branch=master)](https://codeship.com/projects/151121)
+Python client for [Crossengage's API](https://docs.crossengage.io)
+
+Library supports next methods:
+
+**User profile management**
+ - `update_user(self, user)`
+ - `delete_user(self, user)`
+ - `delete_user_by_xng_id(self, user)`
+
+**User attributes management**
+- `add_user_attribute(self, attribute_name, attribute_type, nested_type)`
+- `add_nested_user_attribute(self, parent_name, attribute_name, attribute_type)`
+- `list_user_attributes(self, offset, limit)`
+- `delete_user_attribute(self, attribute_id)`
+
+**Bulk user management**
+- `batch_process(self, delete_list=[], update_list=[])`
+
+**Events management**
+- `send_events(self, events, email=None, user_id=None, business_unit=None)`
+
 ### Owner
 [Alexander Zhilyaev](mailto:azh@hellofresh.com)
 
@@ -51,4 +72,4 @@ For more examples, check `examples.py`.
 
 To run the unit tests, make sure you have the [nose](http://nose.readthedocs.org/) module instaled and run the following from the repository root directory:
 
-`$ nosetests`
+`$ make build && make test`

@@ -2,7 +2,6 @@ import json
 import logging
 
 import requests
-
 from requests.exceptions import RequestException
 
 
@@ -83,6 +82,7 @@ class CrossengageClient(object):
     def update_users_bulk(self, users):
         # type: (list) -> dict
         """
+        Warning! Deprecated method, use batch_process instead.
         Create / Update User bulk.
         :param users: list of user dicts [(email, id, firstName, lastName, birthday, createdAt, gender)]
         :return: json dict response
@@ -167,19 +167,18 @@ class CrossengageClient(object):
         payload = {}
         return self.__create_request(payload, self.REQUEST_DELETE)
 
-    def send_events(self, events, email=None, external_id=None, business_unit=None):
-        # type: (dict), (list) -> dict
+    def send_events(self, events, email=None, user_id=None, business_unit=None):
         """
         Send up to 50 events for a given user.
         :param email: user email
         :param events: list of event payloads
         :param business_unit: businessUnit of user in crossengage
-        :param external_id: id of user in crossengage
+        :param user_id: id of user in your database
         :return: json dict response, for example: {"status_code": 200}
         """
-        self.request_url = self.API_URL + self.EVENTS_ENDPOINT
+        self.request_url = "{}{}".format(self.API_URL, self.EVENTS_ENDPOINT)
 
-        if email is None and external_id is None:
+        if email is None and user_id is None:
             raise ValueError('email or external_id required for sending events')
 
         payload = {
@@ -189,8 +188,8 @@ class CrossengageClient(object):
         if email is not None:
             payload['email'] = email
 
-        if external_id is not None:
-            payload['externalId'] = external_id
+        if user_id is not None:
+            payload['id'] = user_id
 
         if business_unit is not None:
             payload['businessUnit'] = business_unit
@@ -283,16 +282,19 @@ class CrossengageClient(object):
 
         except RequestException as e:
             # handle all requests HTTP exceptions
-            response = {'success': False, 'errors': {'connection_error': e.message}}
+            response = {'success': False, 'errors': {'connection_error': str(e)}}
         except Exception as e:
             # handle all exceptions which can be on API side
-            response = {'success': False, 'errors': {'client_error': e.message + '. Response: ' + r.text}}
+            response = {'success': False, 'errors': {'client_error': str(e)}}
 
         if 'status_code' not in response:
             response['status_code'] = 0
 
         if response['status_code'] == 500:
             response['success'] = False
-            response['errors'] = {'server_error': response['message']}
+            response['errors'] = {'server_error': 'error on crossengage side'}
+
+        if response['status_code'] > 202:
+            response['success'] = False
 
         return response
