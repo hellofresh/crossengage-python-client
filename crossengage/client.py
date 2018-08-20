@@ -49,9 +49,9 @@ class CrossengageClient(object):
     API_VERSION_HEADER = 'X-XNG-ApiVersion'
 
     USER_ENDPOINT = 'users'
-    EVENTS_ENDPOINT = 'events'
     USER_BULK_ENDPOINT = "{0}/batch".format(USER_ENDPOINT)
     TRACK_USER_TASK_ENDPOINT = "{0}/track".format(USER_ENDPOINT)
+    EVENTS_ENDPOINT = 'events'
 
     REQUEST_GET = 'get'
     REQUEST_PUT = 'put'
