@@ -4,6 +4,7 @@ import logging
 import requests
 from requests.exceptions import RequestException
 
+from crossengage.utils import update_dict
 
 class CrossengageClient(object):
     """
@@ -44,9 +45,13 @@ class CrossengageClient(object):
         "v2": "2"
     }
 
+    AUTH_HEADER = 'X-XNG-AuthToken'
+    API_VERSION_HEADER = 'X-XNG-ApiVersion'
+
     USER_ENDPOINT = '/users/'
     EVENTS_ENDPOINT = '/events'
     BULK_ENDPOINT = '/users/batch'
+    TRACK_USER_TASK_ENDPOINT = '/users/track/'
 
     REQUEST_GET = 'get'
     REQUEST_PUT = 'put'
@@ -66,10 +71,32 @@ class CrossengageClient(object):
         self.requests = requests
         self.request_url = ''
         self.default_headers = {
-            'X-XNG-AuthToken': self.client_token,
-            'X-XNG-ApiVersion': self.API_VERSIONS["v1"],
+            self.AUTH_HEADER: self.client_token,
+            self.API_VERSION_HEADER: self.API_VERSIONS["v1"],
             'Content-Type': 'application/json',
         }
+
+    def get_user(self, user):
+        # type: (dict) -> dict
+        """
+        Fetch User by id.
+        :param user: dict of payload (id, email, businessUnit, firstName, lastName, birthday, createdAt, gender)
+        :return: json dict response, for example:
+            {
+                "status_code": 200,
+                "email": "john.doe@crossengage.io",
+                "id": "fb85fe50-a528-11e7-abc4-cec278b6b50a",
+                "xngId": "123e4567-e89b-12d3-a456-426655440000",
+                "firstName": "John",
+                "lastName": "Doe",
+                "birthday": "1982-08-30",
+                "createdAt": "2015-10-02T08:23:53Z",
+                "gender": "male"
+            }
+        """
+        headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
+        self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
+        return self.__create_request(payload={}, request_type=self.REQUEST_GET, headers=headers)
 
     def update_user(self, user):
         # type: (dict) -> dict
@@ -81,6 +108,18 @@ class CrossengageClient(object):
         """
         self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
         return self.__create_request(payload=user, request_type=self.REQUEST_PUT, headers=self.default_headers)
+
+    def update_user_async(self, user):
+        # type: (dict) -> dict
+        """
+        Create / Update User given its id and email.
+        :param user: dict of payload (id, email, businessUnit, firstName, lastName, birthday, createdAt, gender)
+        :return: json dict response, for example:
+          {"status_code": 202, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
+        """
+        headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
+        self.request_url = self.API_URL + self.USER_ENDPOINT
+        return self.__create_request(payload=user, request_type=self.REQUEST_PUT, headers=headers)
 
     def update_users_bulk(self, users):
         # type: (list) -> dict
@@ -103,6 +142,18 @@ class CrossengageClient(object):
         """
         self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
         return self.__create_request(payload=user, request_type=self.REQUEST_DELETE, headers=self.default_headers)
+
+    def delete_user_async(self, user):
+        # type: (dict) -> dict
+        """
+        Delete User given its id.
+        :param user: dict of payload (id)
+        :return: json dict response, for example:
+            {"status_code": 202, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
+        """
+        headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
+        self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
+        return self.__create_request(payload=user, request_type=self.REQUEST_DELETE, headers=headers)
 
     def delete_user_by_xng_id(self, user):
         # type: (dict) -> dict
@@ -256,8 +307,42 @@ class CrossengageClient(object):
 
         return r.status_code, r.json()
 
+    def batch_process_async(self, delete_list=[], update_list=[]):
+        """
+        Create, Update or Delete up to 1000 users in batch.
+        :param delete_list: users that should be deleted
+        :param update_list: users that should be created or updated
+        :return integer status_code, json dict response
+            202, {"trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
+        """
+        headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
+        self.request_url = self.API_URL + self.BULK_ENDPOINT
+
+        payload = {
+            'updated': update_list,
+            'deleted': delete_list,
+        }
+
+        r = self.requests.post(self.request_url, data=json.dumps(payload), headers=headers)
+
+        return r.status_code, r.json()
+
+    def track_user_task(self, tracking_id):
+        # type: (dict) -> dict
+        """
+        Create / Update User given its id.
+        :param user: dict of payload (email, id, firstName, lastName, birthday, createdAt, gender)
+        :return integer status_code, json dict response
+            200, { "stage": "PROCESSED", "total": 2, "success": 1, "error": 1 }
+        """
+        headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
+        self.request_url = self.API_URL + self.TRACK_USER_TASK_ENDPOINT + tracking_id
+
+        r = self.requests.get(self.request_url, headers=headers)
+
+        return r.status_code, r.json()
+
     def __create_request(self, payload, request_type, headers):
-        r = '{}'
         try:
             if request_type == self.REQUEST_PUT:
                 r = self.requests.put(self.request_url, data=json.dumps(payload), headers=headers)

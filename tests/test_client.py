@@ -43,6 +43,9 @@ class DummyRequestException(object):
 
 
 class TestCrossengageClient(unittest.TestCase):
+
+    CROSSENGAGE_URL = "https://api.crossengage.io/"
+
     def setUp(self):
         self.client = CrossengageClient(client_token='SOME_TOKEN')
         self.user = {
@@ -54,24 +57,52 @@ class TestCrossengageClient(unittest.TestCase):
             'createdAt': '2015-10-02T08:23:53Z',
             'gender': 'male',
         }
+        self.default_headers_api_v1 = {
+            'X-XNG-AuthToken': 'SOME_TOKEN',
+            'X-XNG-ApiVersion': '1',
+            'Content-Type': 'application/json',
+        }
+
+        self.default_headers_api_v2 = {
+            'X-XNG-AuthToken': 'SOME_TOKEN',
+            'X-XNG-ApiVersion': '2',
+            'Content-Type': 'application/json',
+        }
 
     def test_init(self):
         self.assertEqual(self.client.client_token, 'SOME_TOKEN')
         self.assertIsNotNone(self.client.requests)
         self.assertEqual(self.client.request_url, '')
-        self.assertEqual(self.client.headers, {
+        self.assertEqual(self.client.default_headers, {
             'X-XNG-AuthToken': 'SOME_TOKEN',
             'X-XNG-ApiVersion': '1',
             'Content-Type': 'application/json',
         })
 
+    def test_get_user(self):
+        expected_response = self.user.copy()
+        expected_response.update({"status_code": 200})
+        response = Mock(status_code=200)
+        response.json.return_value = expected_response
+        requests = Mock()
+        requests.get.return_value = response
+
+        self.client.requests = requests
+        result = self.client.get_user(self.user)
+
+        requests.get.assert_called_once_with(
+            self.client.request_url,
+            headers=self.default_headers_api_v2
+        )
+        self.assertEqual(expected_response, result)
+
     def test_update_user(self):
         self.client.requests = DummyRequest()
         response = self.client.update_user(self.user)
 
-        self.assertEqual('https://api.crossengage.io/users/1234', self.client.request_url)
-        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
-        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+        self.assertEqual(self.CROSSENGAGE_URL + 'users/1234', self.client.request_url)
+        self.assertEqual(self.client.default_headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 200)
         self.assertEqual(response['errors'], '')
@@ -81,9 +112,9 @@ class TestCrossengageClient(unittest.TestCase):
         self.client.requests = DummyRequestException()
         response = self.client.update_user(self.user)
 
-        self.assertEqual('https://api.crossengage.io/users/1234', self.client.request_url)
-        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
-        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+        self.assertEqual(self.CROSSENGAGE_URL + 'users/1234', self.client.request_url)
+        self.assertEqual(self.client.default_headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 0)
         self.assertEqual(response['success'], False)
@@ -105,12 +136,15 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.update_users_bulk(users)
 
-        requests.post.assert_called_once_with('https://api.crossengage.io/users/batch', data=json.dumps(payload),
-                                              headers={
-                                                  'X-XNG-AuthToken': 'SOME_TOKEN',
-                                                  'X-XNG-ApiVersion': '1',
-                                                  'Content-Type': 'application/json',
-                                              })
+        requests.post.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/batch',
+            data=json.dumps(payload),
+            headers={
+                'X-XNG-AuthToken': 'SOME_TOKEN',
+                'X-XNG-ApiVersion': '1',
+                'Content-Type': 'application/json',
+            }
+        )
 
         self.assertEqual(response['status_code'], 200)
         self.assertEqual(response['updated'][0]['id'], 'updated_id')
@@ -135,12 +169,15 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.update_users_bulk(users)
 
-        requests.post.assert_called_once_with('https://api.crossengage.io/users/batch', data=json.dumps(payload),
-                                              headers={
-                                                  'X-XNG-AuthToken': 'SOME_TOKEN',
-                                                  'X-XNG-ApiVersion': '1',
-                                                  'Content-Type': 'application/json',
-                                              })
+        requests.post.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/batch',
+            data=json.dumps(payload),
+            headers={
+                'X-XNG-AuthToken': 'SOME_TOKEN',
+                'X-XNG-ApiVersion': '1',
+                'Content-Type': 'application/json',
+            }
+        )
 
         self.assertEqual(response['status_code'], 400)
         self.assertEqual(response['updated'][0]['id'], 'updated_id')
@@ -156,10 +193,10 @@ class TestCrossengageClient(unittest.TestCase):
         self.client.requests = dummy_request
         response = self.client.delete_user(user)
 
-        self.assertEqual('https://api.crossengage.io/users/1', self.client.request_url)
-        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
-        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
-        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+        self.assertEqual(self.CROSSENGAGE_URL + 'users/1', self.client.request_url)
+        self.assertEqual(self.client.default_headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 204)
 
@@ -172,10 +209,10 @@ class TestCrossengageClient(unittest.TestCase):
         self.client.requests = dummy_request
         response = self.client.delete_user_by_xng_id(user)
 
-        self.assertEqual('https://api.crossengage.io/users/xngId/1', self.client.request_url)
-        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
-        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
-        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+        self.assertEqual(self.CROSSENGAGE_URL + 'users/xngId/1', self.client.request_url)
+        self.assertEqual(self.client.default_headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 204)
 
@@ -189,10 +226,10 @@ class TestCrossengageClient(unittest.TestCase):
             nested_type=CrossengageClient.ATTRIBUTE_STRING
         )
 
-        self.assertEqual('https://api.crossengage.io/users/attributes', self.client.request_url)
-        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
-        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
-        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+        self.assertEqual(self.CROSSENGAGE_URL + 'users/attributes', self.client.request_url)
+        self.assertEqual(self.client.default_headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 200)
         self.assertEqual(response['errors'], '')
@@ -208,10 +245,10 @@ class TestCrossengageClient(unittest.TestCase):
             attribute_type=CrossengageClient.ATTRIBUTE_STRING
         )
 
-        self.assertEqual('https://api.crossengage.io/users/attributes', self.client.request_url)
-        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
-        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
-        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+        self.assertEqual(self.CROSSENGAGE_URL + 'users/attributes', self.client.request_url)
+        self.assertEqual(self.client.default_headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 200)
         self.assertEqual(response['errors'], '')
@@ -223,10 +260,10 @@ class TestCrossengageClient(unittest.TestCase):
         self.client.requests = dummy_request
         response = self.client.list_user_attributes(offset=0, limit=10)
 
-        self.assertEqual('https://api.crossengage.io/users/attributes?offset=0&limit=10', self.client.request_url)
-        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
-        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
-        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+        self.assertEqual(self.CROSSENGAGE_URL + 'users/attributes?offset=0&limit=10', self.client.request_url)
+        self.assertEqual(self.client.default_headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 200)
         self.assertEqual(response['errors'], '')
@@ -238,10 +275,10 @@ class TestCrossengageClient(unittest.TestCase):
         self.client.requests = dummy_request
         response = self.client.delete_user_attribute(attribute_id=123)
 
-        self.assertEqual('https://api.crossengage.io/users/attributes/123', self.client.request_url)
-        self.assertEqual(self.client.headers['X-XNG-AuthToken'], 'SOME_TOKEN')
-        self.assertEqual(self.client.headers['X-XNG-ApiVersion'], '1')
-        self.assertEqual(self.client.headers['Content-Type'], 'application/json')
+        self.assertEqual(self.CROSSENGAGE_URL + 'users/attributes/123', self.client.request_url)
+        self.assertEqual(self.client.default_headers['X-XNG-AuthToken'], 'SOME_TOKEN')
+        self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
+        self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
         self.assertEqual(response['status_code'], 204)
 
@@ -262,7 +299,7 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(user_id='some_id', business_unit='de', events=events)
 
-        requests.post.assert_called_once_with('https://api.crossengage.io/events', data=json.dumps(payload), headers={
+        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
             'X-XNG-AuthToken': 'SOME_TOKEN',
             'X-XNG-ApiVersion': '1',
             'Content-Type': 'application/json',
@@ -286,7 +323,7 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(email='email@sample.com', events=events)
 
-        requests.post.assert_called_once_with('https://api.crossengage.io/events', data=json.dumps(payload), headers={
+        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
             'X-XNG-AuthToken': 'SOME_TOKEN',
             'X-XNG-ApiVersion': '1',
             'Content-Type': 'application/json',
@@ -315,7 +352,7 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(email='email@sample.com', events=events)
 
-        requests.post.assert_called_once_with('https://api.crossengage.io/events', data=json.dumps(payload), headers={
+        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
             'X-XNG-AuthToken': 'SOME_TOKEN',
             'X-XNG-ApiVersion': '1',
             'Content-Type': 'application/json',
@@ -340,7 +377,7 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(email='email@sample.com', events=events)
 
-        requests.post.assert_called_once_with('https://api.crossengage.io/events', data=json.dumps(payload), headers={
+        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
             'X-XNG-AuthToken': 'SOME_TOKEN',
             'X-XNG-ApiVersion': '1',
             'Content-Type': 'application/json',
@@ -365,7 +402,7 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(email='email@sample.com', events=events)
 
-        requests.post.assert_called_once_with('https://api.crossengage.io/events', data=json.dumps(payload), headers={
+        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
             'X-XNG-AuthToken': 'SOME_TOKEN',
             'X-XNG-ApiVersion': '1',
             'Content-Type': 'application/json',
@@ -402,7 +439,7 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(email='email+sample.com', events=events)
 
-        requests.post.assert_called_once_with('https://api.crossengage.io/events', data=json.dumps(payload), headers={
+        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
             'X-XNG-AuthToken': 'SOME_TOKEN',
             'X-XNG-ApiVersion': '1',
             'Content-Type': 'application/json',
@@ -437,11 +474,90 @@ class TestCrossengageClient(unittest.TestCase):
             update_list=[updated_user],
         )
 
-        requests.post.assert_called_once_with('https://api.crossengage.io/users/batch', data=json.dumps(payload),
-                                              headers={
-                                                  'X-XNG-AuthToken': 'SOME_TOKEN',
-                                                  'X-XNG-ApiVersion': '1',
-                                                  'Content-Type': 'application/json',
-                                              })
+        requests.post.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/batch',
+            data=json.dumps(payload),
+            headers=self.default_headers_api_v1
+        )
 
         self.assertEqual(result, (200, json.loads(response.text)))
+
+    def test_update_user_async(self):
+        expected_response = {"status_code": 202, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
+        response = Mock(status_code=202)
+        response.json.return_value = expected_response
+        requests = Mock()
+        requests.put.return_value = response
+
+        self.client.requests = requests
+        result = self.client.update_user_async(self.user)
+
+        requests.put.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/',
+            data=json.dumps(self.user),
+            headers=self.default_headers_api_v2
+        )
+        self.assertEqual(expected_response, result)
+
+    def test_delete_user_async(self):
+        expected_response = {"status_code": 202, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
+        response = Mock(status_code=202)
+        response.json.return_value = expected_response
+        requests = Mock()
+        requests.delete.return_value = response
+
+        self.client.requests = requests
+        result = self.client.delete_user_async(self.user)
+
+        requests.delete.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/' + self.user['id'],
+            data=json.dumps(self.user),
+            headers=self.default_headers_api_v2
+        )
+        self.assertEqual(expected_response, result)
+
+    def test_batch_process_async(self):
+        expected_body = {"trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
+        response = Mock(status_code=202)
+
+        response.json.return_value = expected_body
+
+        updated_user = {'id': 'updated_id', 'email': 'updated@sample.com', 'attribute_key': 'value'}
+        deleted_user = {'id': 'deleted_id', 'email': 'deleted@sample.com', 'attribute_key': 'value'}
+        payload = {'updated': [updated_user], 'deleted': [deleted_user]}
+
+        requests = Mock()
+        requests.post.return_value = response
+        self.client.requests = requests
+
+        result = self.client.batch_process_async(
+            delete_list=[deleted_user],
+            update_list=[updated_user],
+        )
+
+        requests.post.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/batch',
+            data=json.dumps(payload),
+            headers=self.default_headers_api_v2
+        )
+
+        self.assertEqual(result, (202, expected_body))
+
+    def test_track_user_task(self):
+        expected_body = {"stage": "PROCESSED", "total": 2, "success": 1, "error": 1}
+        response = Mock(status_code=200)
+
+        response.json.return_value = expected_body
+
+        requests = Mock()
+        requests.get.return_value = response
+        self.client.requests = requests
+
+        result = self.client.track_user_task("trackingId")
+
+        requests.get.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/track/trackingId',
+            headers=self.default_headers_api_v2
+        )
+
+        self.assertEqual(result, (200, expected_body))
