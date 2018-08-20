@@ -4,6 +4,7 @@ import logging
 import requests
 from requests.exceptions import RequestException
 
+from crossengage.utils import update_dict
 
 class CrossengageClient(object):
     """
@@ -39,11 +40,18 @@ class CrossengageClient(object):
 
     """
     API_URL = 'https://api.crossengage.io'
-    API_VERSION = '1'
+    API_VERSIONS = {
+        "v1": "1",
+        "v2": "2"
+    }
 
-    USER_ENDPOINT = '/users/'
-    EVENTS_ENDPOINT = '/events'
-    BULK_ENDPOINT = '/users/batch'
+    AUTH_HEADER = 'X-XNG-AuthToken'
+    API_VERSION_HEADER = 'X-XNG-ApiVersion'
+
+    USER_ENDPOINT = 'users'
+    USER_BULK_ENDPOINT = "{0}/batch".format(USER_ENDPOINT)
+    TRACK_USER_TASK_ENDPOINT = "{0}/track".format(USER_ENDPOINT)
+    EVENTS_ENDPOINT = 'events'
 
     REQUEST_GET = 'get'
     REQUEST_PUT = 'put'
@@ -62,11 +70,32 @@ class CrossengageClient(object):
         self.client_token = client_token
         self.requests = requests
         self.request_url = ''
-        self.headers = {
-            'X-XNG-AuthToken': self.client_token,
-            'X-XNG-ApiVersion': self.API_VERSION,
+        self.default_headers = {
+            self.AUTH_HEADER: self.client_token,
+            self.API_VERSION_HEADER: self.API_VERSIONS["v1"],
             'Content-Type': 'application/json',
         }
+
+    def get_user(self, user):
+        # type: (dict) -> dict
+        """
+        Fetch User by id.
+        :param user: dict of payload (id, email, businessUnit, firstName, lastName, birthday, createdAt, gender)
+        :return: json dict response, for example:
+            {
+                "status_code": 200,
+                "email": "john.doe@crossengage.io",
+                "id": "fb85fe50-a528-11e7-abc4-cec278b6b50a",
+                "xngId": "123e4567-e89b-12d3-a456-426655440000",
+                "firstName": "John",
+                "lastName": "Doe",
+                "birthday": "1982-08-30",
+                "createdAt": "2015-10-02T08:23:53Z",
+                "gender": "male"
+            }
+        """
+        self.request_url = "{0}/{1}/{2}".format(self.API_URL, self.USER_ENDPOINT, user['id'])
+        return self.__create_request(payload={}, request_type=self.REQUEST_GET, version="v2")
 
     def update_user(self, user):
         # type: (dict) -> dict
@@ -76,8 +105,19 @@ class CrossengageClient(object):
         :return: json dict response, for example: {"status_code": 200, "id":"123", "xngGlobalUserId": "xng-id",
          "success": "true}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
-        return self.__create_request(payload=user, request_type=self.REQUEST_PUT)
+        self.request_url = "{0}/{1}/{2}".format(self.API_URL, self.USER_ENDPOINT, user['id'])
+        return self.__create_request(payload=user, request_type=self.REQUEST_PUT, version="v1")
+
+    def update_user_async(self, user):
+        # type: (dict) -> dict
+        """
+        Create / Update User given its id and email.
+        :param user: dict of payload (id, email, businessUnit, firstName, lastName, birthday, createdAt, gender)
+        :return: json dict response, for example:
+          {"status_code": 202, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
+        """
+        self.request_url = "{0}/{1}".format(self.API_URL, self.USER_ENDPOINT)
+        return self.__create_request(payload=user, request_type=self.REQUEST_PUT, version="v2")
 
     def update_users_bulk(self, users):
         # type: (list) -> dict
@@ -88,8 +128,8 @@ class CrossengageClient(object):
         :return: json dict response
         """
         payload = {'updated': users}
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'batch'
-        return self.__create_request(payload=payload, request_type=self.REQUEST_POST)
+        self.request_url = "{0}/{1}".format(self.API_URL, self.USER_BULK_ENDPOINT)
+        return self.__create_request(payload=payload, request_type=self.REQUEST_POST, version="v1")
 
     def delete_user(self, user):
         # type: (dict) -> dict
@@ -98,8 +138,19 @@ class CrossengageClient(object):
         :param user: dict of payload (id)
         :return: json dict response, for example: {"status_code": 200}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
-        return self.__create_request(payload=user, request_type=self.REQUEST_DELETE)
+        self.request_url = "{0}/{1}/{2}".format(self.API_URL, self.USER_ENDPOINT, user['id'])
+        return self.__create_request(payload=user, request_type=self.REQUEST_DELETE, version="v1")
+
+    def delete_user_async(self, user):
+        # type: (dict) -> dict
+        """
+        Delete User given its id.
+        :param user: dict of payload (id)
+        :return: json dict response, for example:
+            {"status_code": 202, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
+        """
+        self.request_url = "{0}/{1}/{2}".format(self.API_URL, self.USER_ENDPOINT, user['id'])
+        return self.__create_request(payload=user, request_type=self.REQUEST_DELETE, version="v2")
 
     def delete_user_by_xng_id(self, user):
         # type: (dict) -> dict
@@ -108,8 +159,8 @@ class CrossengageClient(object):
         :param user: dict of payload (xng_id)
         :return: json dict response, for example: {"status_code": 200}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'xngId/' + user['xngId']
-        return self.__create_request(payload=user, request_type=self.REQUEST_DELETE)
+        self.request_url = "{0}/{1}/xngId/{2}".format(self.API_URL, self.USER_ENDPOINT, user['xngId'])
+        return self.__create_request(payload=user, request_type=self.REQUEST_DELETE, version="v1")
 
     def add_user_attribute(self, attribute_name, attribute_type, nested_type):
         """
@@ -120,13 +171,13 @@ class CrossengageClient(object):
         :return: json dict response, for example: {"id": 123, "name":"traits.foobar", "attributeType": "ARRAY",
          "success": "true}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes'
+        self.request_url = "{0}/{1}/attributes".format(self.API_URL, self.USER_ENDPOINT)
         payload = {
             'name': 'traits.' + attribute_name,
             'attributeType': attribute_type,
             'nestedType': nested_type
         }
-        return self.__create_request(payload, self.REQUEST_POST)
+        return self.__create_request(payload, self.REQUEST_POST, version="v1")
 
     def add_nested_user_attribute(self, parent_name, attribute_name, attribute_type):
         """
@@ -137,13 +188,13 @@ class CrossengageClient(object):
         :return: json dict response, for example: {"id": 123, "name":"traits.foobar", "attributeType": "ARRAY",
          "success": "true}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes'
+        self.request_url = "{0}/{1}/attributes".format(self.API_URL, self.USER_ENDPOINT)
         payload = {
             'name': attribute_name,
             'attributeType': attribute_type,
             'parentName': parent_name
         }
-        return self.__create_request(payload, self.REQUEST_POST)
+        return self.__create_request(payload, self.REQUEST_POST, version="v1")
 
     def list_user_attributes(self, offset, limit):
         """
@@ -155,7 +206,9 @@ class CrossengageClient(object):
         """
         self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes?offset=' + str(offset) + '&limit=' + str(
             limit)
-        return self.__create_request(None, self.REQUEST_GET)
+        self.request_url = "{0}/{1}/attributes?offset={2}&limit={3}".format(
+            self.API_URL, self.USER_ENDPOINT, offset, limit)
+        return self.__create_request(None, self.REQUEST_GET, version="v1")
 
     def delete_user_attribute(self, attribute_id):
         """
@@ -163,9 +216,9 @@ class CrossengageClient(object):
             :param attribute_id: id of attribute
             :return: response N/A or error_response
             """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes/' + str(attribute_id)
+        self.request_url = "{0}/{1}/attributes/{2}".format(self.API_URL, self.USER_ENDPOINT, attribute_id)
         payload = {}
-        return self.__create_request(payload, self.REQUEST_DELETE)
+        return self.__create_request(payload, self.REQUEST_DELETE, version="v1")
 
     def send_events(self, events, email=None, user_id=None, business_unit=None):
         """
@@ -176,7 +229,7 @@ class CrossengageClient(object):
         :param user_id: id of user in your database
         :return: json dict response, for example: {"status_code": 200}
         """
-        self.request_url = "{}{}".format(self.API_URL, self.EVENTS_ENDPOINT)
+        self.request_url = "{0}/{1}".format(self.API_URL, self.EVENTS_ENDPOINT)
 
         if email is None and user_id is None:
             raise ValueError('email or external_id required for sending events')
@@ -194,7 +247,7 @@ class CrossengageClient(object):
         if business_unit is not None:
             payload['businessUnit'] = business_unit
 
-        return self.__create_request(payload, self.REQUEST_POST)
+        return self.__create_request(payload, self.REQUEST_POST, version="v1")
 
     def batch_process(self, delete_list=[], update_list=[]):
         """
@@ -239,7 +292,7 @@ class CrossengageClient(object):
           ]
         }
         """
-        self.request_url = self.API_URL + self.BULK_ENDPOINT
+        self.request_url = "{0}/{1}".format(self.API_URL, self.USER_BULK_ENDPOINT)
         payload = {
             'updated': update_list,
             'deleted': delete_list,
@@ -248,25 +301,60 @@ class CrossengageClient(object):
         r = self.requests.post(
             self.request_url,
             data=json.dumps(payload),
-            headers=self.headers
+            headers=self.default_headers
         )
 
         return r.status_code, r.json()
 
-    def __create_request(self, payload, request_type):
-        r = '{}'
+    def batch_process_async(self, delete_list=[], update_list=[]):
+        """
+        Create, Update or Delete up to 1000 users in batch.
+        :param delete_list: users that should be deleted
+        :param update_list: users that should be created or updated
+        :return integer status_code, json dict response
+            202, {"trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
+        """
+        headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
+        self.request_url = "{0}/{1}".format(self.API_URL, self.USER_BULK_ENDPOINT)
+
+        payload = {
+            'updated': update_list,
+            'deleted': delete_list,
+        }
+
+        r = self.requests.post(self.request_url, data=json.dumps(payload), headers=headers)
+
+        return r.status_code, r.json()
+
+    def track_user_task(self, tracking_id):
+        # type: (dict) -> dict
+        """
+        Create / Update User given its id.
+        :param user: dict of payload (email, id, firstName, lastName, birthday, createdAt, gender)
+        :return integer status_code, json dict response
+            200, { "stage": "PROCESSED", "total": 2, "success": 1, "error": 1 }
+        """
+        headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
+        self.request_url = "{0}/{1}/{2}".format(self.API_URL, self.TRACK_USER_TASK_ENDPOINT, tracking_id)
+
+        r = self.requests.get(self.request_url, headers=headers)
+
+        return r.status_code, r.json()
+
+    def __create_request(self, payload, request_type, version):
+        headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS[version]})
         try:
             if request_type == self.REQUEST_PUT:
-                r = self.requests.put(self.request_url, data=json.dumps(payload), headers=self.headers)
+                r = self.requests.put(self.request_url, data=json.dumps(payload), headers=headers)
 
             if request_type == self.REQUEST_GET:
-                r = self.requests.get(self.request_url, headers=self.headers)
+                r = self.requests.get(self.request_url, headers=headers)
 
             if request_type == self.REQUEST_POST:
-                r = self.requests.post(self.request_url, data=json.dumps(payload), headers=self.headers)
+                r = self.requests.post(self.request_url, data=json.dumps(payload), headers=headers)
 
             if request_type == self.REQUEST_DELETE:
-                r = self.requests.delete(self.request_url, data=json.dumps(payload), headers=self.headers)
+                r = self.requests.delete(self.request_url, data=json.dumps(payload), headers=headers)
 
             response = {}
             if r.text != '':
