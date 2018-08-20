@@ -493,7 +493,7 @@ class TestCrossengageClient(unittest.TestCase):
         result = self.client.update_user_async(self.user)
 
         requests.put.assert_called_once_with(
-            self.CROSSENGAGE_URL + 'users/',
+            self.CROSSENGAGE_URL + 'users',
             data=json.dumps(self.user),
             headers=self.default_headers_api_v2
         )

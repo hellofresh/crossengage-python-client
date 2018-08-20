@@ -48,10 +48,10 @@ class CrossengageClient(object):
     AUTH_HEADER = 'X-XNG-AuthToken'
     API_VERSION_HEADER = 'X-XNG-ApiVersion'
 
-    USER_ENDPOINT = '/users/'
-    EVENTS_ENDPOINT = '/events'
-    BULK_ENDPOINT = '/users/batch'
-    TRACK_USER_TASK_ENDPOINT = '/users/track/'
+    USER_ENDPOINT = 'users'
+    EVENTS_ENDPOINT = 'events'
+    USER_BULK_ENDPOINT = "{0}/batch".format(USER_ENDPOINT)
+    TRACK_USER_TASK_ENDPOINT = "{0}/track".format(USER_ENDPOINT)
 
     REQUEST_GET = 'get'
     REQUEST_PUT = 'put'
@@ -95,7 +95,7 @@ class CrossengageClient(object):
             }
         """
         headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
-        self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
+        self.request_url = "{0}/{1}/{2}".format(self.API_URL, self.USER_ENDPOINT, user['id'])
         return self.__create_request(payload={}, request_type=self.REQUEST_GET, headers=headers)
 
     def update_user(self, user):
@@ -106,7 +106,7 @@ class CrossengageClient(object):
         :return: json dict response, for example: {"status_code": 200, "id":"123", "xngGlobalUserId": "xng-id",
          "success": "true}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
+        self.request_url = "{0}/{1}/{2}".format(self.API_URL, self.USER_ENDPOINT, user['id'])
         return self.__create_request(payload=user, request_type=self.REQUEST_PUT, headers=self.default_headers)
 
     def update_user_async(self, user):
@@ -118,7 +118,7 @@ class CrossengageClient(object):
           {"status_code": 202, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
         """
         headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
-        self.request_url = self.API_URL + self.USER_ENDPOINT
+        self.request_url = "{0}/{1}".format(self.API_URL, self.USER_ENDPOINT)
         return self.__create_request(payload=user, request_type=self.REQUEST_PUT, headers=headers)
 
     def update_users_bulk(self, users):
@@ -130,7 +130,7 @@ class CrossengageClient(object):
         :return: json dict response
         """
         payload = {'updated': users}
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'batch'
+        self.request_url = "{0}/{1}".format(self.API_URL, self.USER_BULK_ENDPOINT)
         return self.__create_request(payload=payload, request_type=self.REQUEST_POST, headers=self.default_headers)
 
     def delete_user(self, user):
@@ -140,7 +140,7 @@ class CrossengageClient(object):
         :param user: dict of payload (id)
         :return: json dict response, for example: {"status_code": 200}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
+        self.request_url = "{0}/{1}/{2}".format(self.API_URL, self.USER_ENDPOINT, user['id'])
         return self.__create_request(payload=user, request_type=self.REQUEST_DELETE, headers=self.default_headers)
 
     def delete_user_async(self, user):
@@ -152,7 +152,7 @@ class CrossengageClient(object):
             {"status_code": 202, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
         """
         headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
-        self.request_url = self.API_URL + self.USER_ENDPOINT + user['id']
+        self.request_url = "{0}/{1}/{2}".format(self.API_URL, self.USER_ENDPOINT, user['id'])
         return self.__create_request(payload=user, request_type=self.REQUEST_DELETE, headers=headers)
 
     def delete_user_by_xng_id(self, user):
@@ -162,7 +162,7 @@ class CrossengageClient(object):
         :param user: dict of payload (xng_id)
         :return: json dict response, for example: {"status_code": 200}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'xngId/' + user['xngId']
+        self.request_url = "{0}/{1}/xngId/{2}".format(self.API_URL, self.USER_ENDPOINT, user['xngId'])
         return self.__create_request(payload=user, request_type=self.REQUEST_DELETE, headers=self.default_headers)
 
     def add_user_attribute(self, attribute_name, attribute_type, nested_type):
@@ -174,7 +174,7 @@ class CrossengageClient(object):
         :return: json dict response, for example: {"id": 123, "name":"traits.foobar", "attributeType": "ARRAY",
          "success": "true}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes'
+        self.request_url = "{0}/{1}/attributes".format(self.API_URL, self.USER_ENDPOINT)
         payload = {
             'name': 'traits.' + attribute_name,
             'attributeType': attribute_type,
@@ -191,7 +191,7 @@ class CrossengageClient(object):
         :return: json dict response, for example: {"id": 123, "name":"traits.foobar", "attributeType": "ARRAY",
          "success": "true}
         """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes'
+        self.request_url = "{0}/{1}/attributes".format(self.API_URL, self.USER_ENDPOINT)
         payload = {
             'name': attribute_name,
             'attributeType': attribute_type,
@@ -209,6 +209,8 @@ class CrossengageClient(object):
         """
         self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes?offset=' + str(offset) + '&limit=' + str(
             limit)
+        self.request_url = "{0}/{1}/attributes?offset={2}&limit={3}".format(
+            self.API_URL, self.USER_ENDPOINT, offset, limit)
         return self.__create_request(None, self.REQUEST_GET, headers=self.default_headers)
 
     def delete_user_attribute(self, attribute_id):
@@ -217,7 +219,7 @@ class CrossengageClient(object):
             :param attribute_id: id of attribute
             :return: response N/A or error_response
             """
-        self.request_url = self.API_URL + self.USER_ENDPOINT + 'attributes/' + str(attribute_id)
+        self.request_url = "{0}/{1}/attributes/{2}".format(self.API_URL, self.USER_ENDPOINT, attribute_id)
         payload = {}
         return self.__create_request(payload, self.REQUEST_DELETE, headers=self.default_headers)
 
@@ -230,7 +232,7 @@ class CrossengageClient(object):
         :param user_id: id of user in your database
         :return: json dict response, for example: {"status_code": 200}
         """
-        self.request_url = "{}{}".format(self.API_URL, self.EVENTS_ENDPOINT)
+        self.request_url = "{0}/{1}".format(self.API_URL, self.EVENTS_ENDPOINT)
 
         if email is None and user_id is None:
             raise ValueError('email or external_id required for sending events')
@@ -293,7 +295,7 @@ class CrossengageClient(object):
           ]
         }
         """
-        self.request_url = self.API_URL + self.BULK_ENDPOINT
+        self.request_url = "{0}/{1}".format(self.API_URL, self.USER_BULK_ENDPOINT)
         payload = {
             'updated': update_list,
             'deleted': delete_list,
@@ -316,7 +318,7 @@ class CrossengageClient(object):
             202, {"trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
         """
         headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
-        self.request_url = self.API_URL + self.BULK_ENDPOINT
+        self.request_url = "{0}/{1}".format(self.API_URL, self.USER_BULK_ENDPOINT)
 
         payload = {
             'updated': update_list,
@@ -336,7 +338,7 @@ class CrossengageClient(object):
             200, { "stage": "PROCESSED", "total": 2, "success": 1, "error": 1 }
         """
         headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
-        self.request_url = self.API_URL + self.TRACK_USER_TASK_ENDPOINT + tracking_id
+        self.request_url = "{0}/{1}/{2}".format(self.API_URL, self.TRACK_USER_TASK_ENDPOINT, tracking_id)
 
         r = self.requests.get(self.request_url, headers=headers)
 
