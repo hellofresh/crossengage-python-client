@@ -339,7 +339,12 @@ class CrossengageClient(object):
 
         r = self.requests.get(self.request_url, headers=headers)
 
-        return r.status_code, r.json()
+        try:
+            body = r.json()
+        except ValueError:
+            body = None
+
+        return r.status_code, body
 
     def __create_request(self, payload, request_type, version):
         headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS[version]})

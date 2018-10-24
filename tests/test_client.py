@@ -543,21 +543,46 @@ class TestCrossengageClient(unittest.TestCase):
 
         self.assertEqual(result, (codes.accepted, expected_body))
 
-    def test_track_user_task(self):
+    def test_track_user_task_ok(self):
+        """Crossengage returns status code 200"""
+        # GIVEN
         expected_body = {"stage": "PROCESSED", "total": 2, "success": 1, "error": 1}
-        response = Mock(status_code=200)
 
+        response = Mock(status_code=codes.ok)
         response.json.return_value = expected_body
 
         requests = Mock()
         requests.get.return_value = response
         self.client.requests = requests
 
+        # WHEN
         result = self.client.track_user_task("trackingId")
 
+        # THEN
         requests.get.assert_called_once_with(
             self.CROSSENGAGE_URL + 'users/track/trackingId',
             headers=self.default_headers_api_v2
         )
 
-        self.assertEqual(result, (200, expected_body))
+        self.assertEqual(result, (codes.ok, expected_body))
+
+    def test_track_user_task_not_found(self):
+        """Crossengage returns status code 404"""
+        # GIVEN
+        response = Mock(status_code=codes.not_found)
+        response.json.return_value = ValueError
+
+        requests = Mock()
+        requests.get.return_value = response
+        self.client.requests = requests
+
+        # WHEN
+        result = self.client.track_user_task("trackingId")
+
+        # THEN
+        requests.get.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/track/trackingId',
+            headers=self.default_headers_api_v2
+        )
+
+        self.assertEqual(result, (codes.not_found, None))
