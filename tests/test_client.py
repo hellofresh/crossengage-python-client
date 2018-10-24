@@ -570,7 +570,7 @@ class TestCrossengageClient(unittest.TestCase):
         """Crossengage returns status code 404"""
         # GIVEN
         response = Mock(status_code=codes.not_found)
-        response.json.return_value = ValueError
+        response.json.side_effect = ValueError
 
         requests = Mock()
         requests.get.return_value = response
