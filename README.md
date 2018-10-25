@@ -13,21 +13,26 @@ Python client for [Crossengage's API](https://docs.crossengage.io)
 Library supports next methods:
 
 **User profile management**
- - `update_user(self, user)`
- - `delete_user(self, user)`
- - `delete_user_by_xng_id(self, user)`
+ - `get_user(self, user)` | v2
+ - `update_user(self, user)` | v1
+ - `update_user_async(self, user)` | v2
+ - `delete_user(self, user)` | v1
+ - `delete_user_async(self, user)` | v2
+ - `delete_user_by_xng_id(self, user)` | v1
+ - `track_user_task(self, tracking_id)` | v2
 
 **User attributes management**
-- `add_user_attribute(self, attribute_name, attribute_type, nested_type)`
-- `add_nested_user_attribute(self, parent_name, attribute_name, attribute_type)`
-- `list_user_attributes(self, offset, limit)`
-- `delete_user_attribute(self, attribute_id)`
+- `add_user_attribute(self, attribute_name, attribute_type, nested_type)` | v1
+- `add_nested_user_attribute(self, parent_name, attribute_name, attribute_type)` | v1
+- `list_user_attributes(self, offset, limit)` | v1
+- `delete_user_attribute(self, attribute_id)` | v1
 
 **Bulk user management**
-- `batch_process(self, delete_list=[], update_list=[])`
+- `batch_process(self, delete_list=[], update_list=[])` | v1
+- `batch_process_async(self, delete_list=[], update_list=[])` | v2
 
 **Events management**
-- `send_events(self, events, email=None, user_id=None, business_unit=None)`
+- `send_events(self, events, email=None, user_id=None, business_unit=None)` | v1
 
 ### Owner
 [Alexander Zhilyaev](mailto:azh@hellofresh.com)

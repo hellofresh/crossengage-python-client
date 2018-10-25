@@ -2,14 +2,14 @@ import json
 import unittest
 
 from mock import Mock
-from requests import RequestException
+from requests import RequestException, codes
 
 from crossengage.client import CrossengageClient
 
 
 class DummyRequest(object):
     def __init__(self):
-        self.status_code = 200
+        self.status_code = codes.ok
         self.text = 'Some text'
         self.request = Mock()
 
@@ -32,7 +32,7 @@ class DummyRequest(object):
 
 class DummyRequestException(object):
     def __init__(self):
-        self.status_code = 200
+        self.status_code = codes.ok
 
     def put(self, request_url, data, headers):
         raise RequestException('Something went wrong')
@@ -81,8 +81,8 @@ class TestCrossengageClient(unittest.TestCase):
 
     def test_get_user(self):
         expected_response = self.user.copy()
-        expected_response.update({"status_code": 200})
-        response = Mock(status_code=200)
+        expected_response.update({"status_code": codes.ok})
+        response = Mock(status_code=codes.ok)
         response.json.return_value = expected_response
         requests = Mock()
         requests.get.return_value = response
@@ -104,7 +104,7 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.default_headers['X-XNG-AuthToken'], 'SOME_TOKEN')
         self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
-        self.assertEqual(response['status_code'], 200)
+        self.assertEqual(response['status_code'], codes.ok)
         self.assertEqual(response['errors'], '')
         self.assertEqual(response['success'], True)
 
@@ -121,7 +121,7 @@ class TestCrossengageClient(unittest.TestCase):
 
     def test_update_users_bulk(self):
         response = Mock(
-            status_code=200,
+            status_code=codes.ok,
             text='{"updated": [{"id": "updated_id","xngId": "updated_xngId","success": true}],'
                  '"deleted": [{"id": "deleted_id","xngId": "deleted_xngId","success": true}]}')
 
@@ -146,13 +146,13 @@ class TestCrossengageClient(unittest.TestCase):
             }
         )
 
-        self.assertEqual(response['status_code'], 200)
+        self.assertEqual(response['status_code'], codes.ok)
         self.assertEqual(response['updated'][0]['id'], 'updated_id')
         self.assertEqual(response['updated'][0]['success'], True)
 
     def test_update_users_bulk_bad_request(self):
         response = Mock(
-            status_code=400,
+            status_code=codes.bad_request,
             text='{"updated": [{"id": "updated_id","xngId": "updated_xngId","success": false,'
                  '"errors": [{"field": "id","type": "NOT_NULL"},{"field": "email","type": "WRONG_FORMAT"}]}],'
                  '"deleted": [{"id": "deleted_id","xngId": "deleted_xngId","success": false,'
@@ -179,7 +179,7 @@ class TestCrossengageClient(unittest.TestCase):
             }
         )
 
-        self.assertEqual(response['status_code'], 400)
+        self.assertEqual(response['status_code'], codes.bad_request)
         self.assertEqual(response['updated'][0]['id'], 'updated_id')
         self.assertEqual(response['updated'][0]['success'], False)
         self.assertEqual(response['success'], False)
@@ -189,7 +189,7 @@ class TestCrossengageClient(unittest.TestCase):
             'id': '1',
         }
         dummy_request = DummyRequest()
-        dummy_request.status_code = 204
+        dummy_request.status_code = codes.no_content
         self.client.requests = dummy_request
         response = self.client.delete_user(user)
 
@@ -198,14 +198,14 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
         self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
-        self.assertEqual(response['status_code'], 204)
+        self.assertEqual(response['status_code'], codes.no_content)
 
     def test_delete_user_by_xng_id(self):
         user = {
             'xngId': '1',
         }
         dummy_request = DummyRequest()
-        dummy_request.status_code = 204
+        dummy_request.status_code = codes.no_content
         self.client.requests = dummy_request
         response = self.client.delete_user_by_xng_id(user)
 
@@ -214,11 +214,11 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
         self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
-        self.assertEqual(response['status_code'], 204)
+        self.assertEqual(response['status_code'], codes.no_content)
 
     def test_add_user_attribute(self):
         dummy_request = DummyRequest()
-        dummy_request.status_code = 200
+        dummy_request.status_code = codes.ok
         self.client.requests = dummy_request
         response = self.client.add_user_attribute(
             attribute_name='attr_name',
@@ -231,13 +231,13 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
         self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
-        self.assertEqual(response['status_code'], 200)
+        self.assertEqual(response['status_code'], codes.ok)
         self.assertEqual(response['errors'], '')
         self.assertEqual(response['success'], True)
 
     def test_add_nested_user_attribute(self):
         dummy_request = DummyRequest()
-        dummy_request.status_code = 200
+        dummy_request.status_code = codes.ok
         self.client.requests = dummy_request
         response = self.client.add_nested_user_attribute(
             parent_name='parent_attribute',
@@ -250,13 +250,13 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
         self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
-        self.assertEqual(response['status_code'], 200)
+        self.assertEqual(response['status_code'], codes.ok)
         self.assertEqual(response['errors'], '')
         self.assertEqual(response['success'], True)
 
     def test_list_user_attributes(self):
         dummy_request = DummyRequest()
-        dummy_request.status_code = 200
+        dummy_request.status_code = codes.ok
         self.client.requests = dummy_request
         response = self.client.list_user_attributes(offset=0, limit=10)
 
@@ -265,13 +265,13 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
         self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
-        self.assertEqual(response['status_code'], 200)
+        self.assertEqual(response['status_code'], codes.ok)
         self.assertEqual(response['errors'], '')
         self.assertEqual(response['success'], True)
 
     def test_delete_user_attributes(self):
         dummy_request = DummyRequest()
-        dummy_request.status_code = 204
+        dummy_request.status_code = codes.no_content
         self.client.requests = dummy_request
         response = self.client.delete_user_attribute(attribute_id=123)
 
@@ -280,10 +280,10 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(self.client.default_headers['X-XNG-ApiVersion'], '1')
         self.assertEqual(self.client.default_headers['Content-Type'], 'application/json')
 
-        self.assertEqual(response['status_code'], 204)
+        self.assertEqual(response['status_code'], codes.no_content)
 
     def test_send_events_with_user_id(self):
-        response = Mock(status_code=202, text='{"success": true, "errors": ""}')
+        response = Mock(status_code=codes.accepted, text='{"success": true, "errors": ""}')
         response.json.return_value = {'success': True, 'errors': ''}
 
         events = [{'foo': 'bar'}, {'xpto': 123}]
@@ -305,10 +305,10 @@ class TestCrossengageClient(unittest.TestCase):
             'Content-Type': 'application/json',
         })
 
-        self.assertEqual(response['status_code'], 202)
+        self.assertEqual(response['status_code'], codes.accepted)
 
     def test_send_events_with_email(self):
-        response = Mock(status_code=202, text='{"success": true, "errors": ""}')
+        response = Mock(status_code=codes.accepted, text='{"success": true, "errors": ""}')
         response.json.return_value = {'success': True, 'errors': ''}
 
         events = [{'foo': 'bar'}, {'xpto': 123}]
@@ -329,7 +329,7 @@ class TestCrossengageClient(unittest.TestCase):
             'Content-Type': 'application/json',
         })
 
-        self.assertEqual(response['status_code'], 202)
+        self.assertEqual(response['status_code'], codes.accepted)
 
     def test_send_events_value_error(self):
         events = [{'foo': 'bar'}, {'xpto': 123}]
@@ -337,7 +337,7 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertRaises(ValueError, self.client.send_events, events=events)
 
     def test_send_events_request_exception_raised(self):
-        response = Mock(status_code=202, text='{"success": true, "errors": ""}')
+        response = Mock(status_code=codes.accepted, text='{"success": true, "errors": ""}')
         response.json.return_value = {'success': True, 'errors': ''}
 
         events = [{'foo': 'bar'}, {'xpto': 123}]
@@ -362,7 +362,7 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(response['errors'], {'connection_error': 'exception raised'})
 
     def test_send_events_exception_raised(self):
-        response = Mock(status_code=202, text='{???}')
+        response = Mock(status_code=codes.accepted, text='{???}')
         response.json.return_value = {'success': True, 'errors': ''}
 
         events = [{'foo': 'bar'}, {'xpto': 123}]
@@ -387,7 +387,7 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(response['errors'], {'client_error': 'exception raised'})
 
     def test_send_events_internal_server_error_response(self):
-        response = Mock(status_code=500, text='Something went wrong')
+        response = Mock(status_code=codes.server_error, text='Something went wrong')
         response.json.return_value = {}
 
         events = [{'foo': 'bar'}, {'xpto': 123}]
@@ -412,7 +412,7 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(response['errors'], {'server_error': 'error on crossengage side'})
 
     def test_send_events_bad_request_error_response(self):
-        response = Mock(status_code=400, text='{}')
+        response = Mock(status_code=codes.bad_request, text='{}')
         response.json.return_value = {
             'id': 'some_id',
             'xngId': 'some_xngid',
@@ -455,7 +455,7 @@ class TestCrossengageClient(unittest.TestCase):
 
     def test_batch_process(self):
         response = Mock(
-            status_code=200,
+            status_code=codes.ok,
             text='{"updated": [{"id": "updated_id","xngId": "updated_xngId","success": true}],'
                  '"deleted": [{"id": "deleted_id","xngId": "deleted_xngId","success": true}]}')
 
@@ -480,11 +480,11 @@ class TestCrossengageClient(unittest.TestCase):
             headers=self.default_headers_api_v1
         )
 
-        self.assertEqual(result, (200, json.loads(response.text)))
+        self.assertEqual(result, (codes.ok, json.loads(response.text)))
 
     def test_update_user_async(self):
-        expected_response = {"status_code": 202, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
-        response = Mock(status_code=202)
+        expected_response = {"status_code": codes.accepted, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
+        response = Mock(status_code=codes.accepted)
         response.json.return_value = expected_response
         requests = Mock()
         requests.put.return_value = response
@@ -500,8 +500,8 @@ class TestCrossengageClient(unittest.TestCase):
         self.assertEqual(expected_response, result)
 
     def test_delete_user_async(self):
-        expected_response = {"status_code": 202, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
-        response = Mock(status_code=202)
+        expected_response = {"status_code": codes.accepted, "trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
+        response = Mock(status_code=codes.accepted)
         response.json.return_value = expected_response
         requests = Mock()
         requests.delete.return_value = response
@@ -518,7 +518,7 @@ class TestCrossengageClient(unittest.TestCase):
 
     def test_batch_process_async(self):
         expected_body = {"trackingId": "2e312089-a987-45c6-adbd-b904bc4dfc97"}
-        response = Mock(status_code=202)
+        response = Mock(status_code=codes.accepted)
 
         response.json.return_value = expected_body
 
@@ -541,23 +541,48 @@ class TestCrossengageClient(unittest.TestCase):
             headers=self.default_headers_api_v2
         )
 
-        self.assertEqual(result, (202, expected_body))
+        self.assertEqual(result, (codes.accepted, expected_body))
 
-    def test_track_user_task(self):
+    def test_track_user_task_ok(self):
+        """Crossengage returns status code 200"""
+        # GIVEN
         expected_body = {"stage": "PROCESSED", "total": 2, "success": 1, "error": 1}
-        response = Mock(status_code=200)
 
+        response = Mock(status_code=codes.ok)
         response.json.return_value = expected_body
 
         requests = Mock()
         requests.get.return_value = response
         self.client.requests = requests
 
+        # WHEN
         result = self.client.track_user_task("trackingId")
 
+        # THEN
         requests.get.assert_called_once_with(
             self.CROSSENGAGE_URL + 'users/track/trackingId',
             headers=self.default_headers_api_v2
         )
 
-        self.assertEqual(result, (200, expected_body))
+        self.assertEqual(result, (codes.ok, expected_body))
+
+    def test_track_user_task_not_found(self):
+        """Crossengage returns status code 404"""
+        # GIVEN
+        response = Mock(status_code=codes.not_found)
+        response.json.side_effect = ValueError
+
+        requests = Mock()
+        requests.get.return_value = response
+        self.client.requests = requests
+
+        # WHEN
+        result = self.client.track_user_task("trackingId")
+
+        # THEN
+        requests.get.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/track/trackingId',
+            headers=self.default_headers_api_v2
+        )
+
+        self.assertEqual(result, (codes.not_found, None))
