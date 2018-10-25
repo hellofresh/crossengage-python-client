@@ -574,7 +574,8 @@ class TestCrossengageClient(unittest.TestCase):
         requests.post.assert_called_once_with(
             self.CROSSENGAGE_URL + 'users/batch',
             data=json.dumps(payload),
-            headers=self.default_headers_api_v2
+            headers=self.default_headers_api_v2,
+            timeout=30
         )
 
         self.assertEqual(result, (codes.accepted, expected_body))
