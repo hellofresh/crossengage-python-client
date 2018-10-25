@@ -301,7 +301,8 @@ class CrossengageClient(object):
         r = self.requests.post(
             self.request_url,
             data=json.dumps(payload),
-            headers=self.default_headers
+            headers=self.default_headers,
+            timeout=30
         )
 
         return r.status_code, r.json()
@@ -322,7 +323,7 @@ class CrossengageClient(object):
             'deleted': delete_list,
         }
 
-        r = self.requests.post(self.request_url, data=json.dumps(payload), headers=headers)
+        r = self.requests.post(self.request_url, data=json.dumps(payload), headers=headers, timeout=30)
 
         return r.status_code, r.json()
 
@@ -337,7 +338,7 @@ class CrossengageClient(object):
         headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS["v2"]})
         self.request_url = "{0}/{1}/{2}".format(self.API_URL, self.TRACK_USER_TASK_ENDPOINT, tracking_id)
 
-        r = self.requests.get(self.request_url, headers=headers)
+        r = self.requests.get(self.request_url, headers=headers, timeout=30)
 
         try:
             body = r.json()
@@ -350,16 +351,16 @@ class CrossengageClient(object):
         headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS[version]})
         try:
             if request_type == self.REQUEST_PUT:
-                r = self.requests.put(self.request_url, data=json.dumps(payload), headers=headers)
+                r = self.requests.put(self.request_url, data=json.dumps(payload), headers=headers, timeout=30)
 
             if request_type == self.REQUEST_GET:
-                r = self.requests.get(self.request_url, headers=headers)
+                r = self.requests.get(self.request_url, headers=headers, timeout=30)
 
             if request_type == self.REQUEST_POST:
-                r = self.requests.post(self.request_url, data=json.dumps(payload), headers=headers)
+                r = self.requests.post(self.request_url, data=json.dumps(payload), headers=headers, timeout=30)
 
             if request_type == self.REQUEST_DELETE:
-                r = self.requests.delete(self.request_url, data=json.dumps(payload), headers=headers)
+                r = self.requests.delete(self.request_url, data=json.dumps(payload), headers=headers, timeout=30)
 
             response = {}
             if r.text != '':
