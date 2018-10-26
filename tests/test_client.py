@@ -13,16 +13,16 @@ class DummyRequest(object):
         self.text = 'Some text'
         self.request = Mock()
 
-    def put(self, request_url, data, headers):
+    def put(self, request_url, data, headers, timeout):
         return self
 
-    def delete(self, request_url, data, headers):
+    def delete(self, request_url, data, headers, timeout):
         return self
 
-    def post(self, request_url, data, headers):
+    def post(self, request_url, data, headers, timeout):
         return self
 
-    def get(self, request_url, headers):
+    def get(self, request_url, headers, timeout):
         return self
 
     @staticmethod
@@ -34,7 +34,7 @@ class DummyRequestException(object):
     def __init__(self):
         self.status_code = codes.ok
 
-    def put(self, request_url, data, headers):
+    def put(self, request_url, data, headers, timeout):
         raise RequestException('Something went wrong')
 
     @staticmethod
@@ -92,7 +92,8 @@ class TestCrossengageClient(unittest.TestCase):
 
         requests.get.assert_called_once_with(
             self.client.request_url,
-            headers=self.default_headers_api_v2
+            headers=self.default_headers_api_v2,
+            timeout=30
         )
         self.assertEqual(expected_response, result)
 
@@ -143,7 +144,8 @@ class TestCrossengageClient(unittest.TestCase):
                 'X-XNG-AuthToken': 'SOME_TOKEN',
                 'X-XNG-ApiVersion': '1',
                 'Content-Type': 'application/json',
-            }
+            },
+            timeout=30
         )
 
         self.assertEqual(response['status_code'], codes.ok)
@@ -176,7 +178,8 @@ class TestCrossengageClient(unittest.TestCase):
                 'X-XNG-AuthToken': 'SOME_TOKEN',
                 'X-XNG-ApiVersion': '1',
                 'Content-Type': 'application/json',
-            }
+            },
+            timeout=30
         )
 
         self.assertEqual(response['status_code'], codes.bad_request)
@@ -299,11 +302,16 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(user_id='some_id', business_unit='de', events=events)
 
-        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
-            'X-XNG-AuthToken': 'SOME_TOKEN',
-            'X-XNG-ApiVersion': '1',
-            'Content-Type': 'application/json',
-        })
+        requests.post.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'events',
+            data=json.dumps(payload),
+            headers={
+                'X-XNG-AuthToken': 'SOME_TOKEN',
+                'X-XNG-ApiVersion': '1',
+                'Content-Type': 'application/json',
+            },
+            timeout=30
+        )
 
         self.assertEqual(response['status_code'], codes.accepted)
 
@@ -323,11 +331,16 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(email='email@sample.com', events=events)
 
-        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
-            'X-XNG-AuthToken': 'SOME_TOKEN',
-            'X-XNG-ApiVersion': '1',
-            'Content-Type': 'application/json',
-        })
+        requests.post.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'events',
+            data=json.dumps(payload),
+            headers={
+                'X-XNG-AuthToken': 'SOME_TOKEN',
+                'X-XNG-ApiVersion': '1',
+                'Content-Type': 'application/json',
+            },
+            timeout=30
+        )
 
         self.assertEqual(response['status_code'], codes.accepted)
 
@@ -352,11 +365,16 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(email='email@sample.com', events=events)
 
-        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
-            'X-XNG-AuthToken': 'SOME_TOKEN',
-            'X-XNG-ApiVersion': '1',
-            'Content-Type': 'application/json',
-        })
+        requests.post.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'events',
+            data=json.dumps(payload),
+            headers={
+                'X-XNG-AuthToken': 'SOME_TOKEN',
+                'X-XNG-ApiVersion': '1',
+                'Content-Type': 'application/json',
+            },
+            timeout=30
+        )
 
         self.assertEqual(response['success'], False)
         self.assertEqual(response['errors'], {'connection_error': 'exception raised'})
@@ -377,11 +395,16 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(email='email@sample.com', events=events)
 
-        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
-            'X-XNG-AuthToken': 'SOME_TOKEN',
-            'X-XNG-ApiVersion': '1',
-            'Content-Type': 'application/json',
-        })
+        requests.post.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'events',
+            data=json.dumps(payload),
+            headers={
+                'X-XNG-AuthToken': 'SOME_TOKEN',
+                'X-XNG-ApiVersion': '1',
+                'Content-Type': 'application/json',
+            },
+            timeout=30
+        )
 
         self.assertEqual(response['success'], False)
         self.assertEqual(response['errors'], {'client_error': 'exception raised'})
@@ -402,11 +425,16 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(email='email@sample.com', events=events)
 
-        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
-            'X-XNG-AuthToken': 'SOME_TOKEN',
-            'X-XNG-ApiVersion': '1',
-            'Content-Type': 'application/json',
-        })
+        requests.post.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'events',
+            data=json.dumps(payload),
+            headers={
+                'X-XNG-AuthToken': 'SOME_TOKEN',
+                'X-XNG-ApiVersion': '1',
+                'Content-Type': 'application/json',
+            },
+            timeout=30
+        )
 
         self.assertEqual(response['success'], False)
         self.assertEqual(response['errors'], {'server_error': 'error on crossengage side'})
@@ -439,11 +467,16 @@ class TestCrossengageClient(unittest.TestCase):
 
         response = self.client.send_events(email='email+sample.com', events=events)
 
-        requests.post.assert_called_once_with(self.CROSSENGAGE_URL + 'events', data=json.dumps(payload), headers={
-            'X-XNG-AuthToken': 'SOME_TOKEN',
-            'X-XNG-ApiVersion': '1',
-            'Content-Type': 'application/json',
-        })
+        requests.post.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'events',
+            data=json.dumps(payload),
+            headers={
+                'X-XNG-AuthToken': 'SOME_TOKEN',
+                'X-XNG-ApiVersion': '1',
+                'Content-Type': 'application/json',
+            },
+            timeout=30
+        )
 
         self.assertEqual(response['success'], False)
         self.assertEqual(response['errors'], [
@@ -477,7 +510,8 @@ class TestCrossengageClient(unittest.TestCase):
         requests.post.assert_called_once_with(
             self.CROSSENGAGE_URL + 'users/batch',
             data=json.dumps(payload),
-            headers=self.default_headers_api_v1
+            headers=self.default_headers_api_v1,
+            timeout=30
         )
 
         self.assertEqual(result, (codes.ok, json.loads(response.text)))
@@ -495,7 +529,8 @@ class TestCrossengageClient(unittest.TestCase):
         requests.put.assert_called_once_with(
             self.CROSSENGAGE_URL + 'users',
             data=json.dumps(self.user),
-            headers=self.default_headers_api_v2
+            headers=self.default_headers_api_v2,
+            timeout=30
         )
         self.assertEqual(expected_response, result)
 
@@ -512,7 +547,8 @@ class TestCrossengageClient(unittest.TestCase):
         requests.delete.assert_called_once_with(
             self.CROSSENGAGE_URL + 'users/' + self.user['id'],
             data=json.dumps(self.user),
-            headers=self.default_headers_api_v2
+            headers=self.default_headers_api_v2,
+            timeout=30
         )
         self.assertEqual(expected_response, result)
 
@@ -538,7 +574,8 @@ class TestCrossengageClient(unittest.TestCase):
         requests.post.assert_called_once_with(
             self.CROSSENGAGE_URL + 'users/batch',
             data=json.dumps(payload),
-            headers=self.default_headers_api_v2
+            headers=self.default_headers_api_v2,
+            timeout=30
         )
 
         self.assertEqual(result, (codes.accepted, expected_body))
@@ -561,7 +598,8 @@ class TestCrossengageClient(unittest.TestCase):
         # THEN
         requests.get.assert_called_once_with(
             self.CROSSENGAGE_URL + 'users/track/trackingId',
-            headers=self.default_headers_api_v2
+            headers=self.default_headers_api_v2,
+            timeout=30
         )
 
         self.assertEqual(result, (codes.ok, expected_body))
@@ -582,7 +620,8 @@ class TestCrossengageClient(unittest.TestCase):
         # THEN
         requests.get.assert_called_once_with(
             self.CROSSENGAGE_URL + 'users/track/trackingId',
-            headers=self.default_headers_api_v2
+            headers=self.default_headers_api_v2,
+            timeout=30
         )
 
         self.assertEqual(result, (codes.not_found, None))
