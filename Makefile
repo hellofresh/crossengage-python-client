@@ -3,15 +3,15 @@ help:
 	@echo "  test       to run unit tests"
 	@echo "  build      to install requirements for development"
 
-build: requirements test-requirements
+build: requirements requirements-tests
 
 test: unittests
 
 unittests:
-	PYTHONPATH=$(CURDIR) nosetests -d -w tests -v --with-coverage --cover-package ./crossengage
+	PYTHONPATH=$(CURDIR) py.test --cov=crossengage tests/
 
 requirements:
 	pip install -r requirements.txt
 
-test-requirements:
-	pip install -r test-requirements.txt
+requirements-tests:
+	pip install -r requirements-tests.txt

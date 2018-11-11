@@ -1,4 +1,5 @@
 unittest2
 mock
-nose
+pytest
+pytest-cov
 codecov
