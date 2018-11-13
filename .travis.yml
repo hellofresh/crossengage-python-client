@@ -1,6 +1,8 @@
 language: python
 python:
   - "2.7"
+  - "3.4"
+  - "3.5"
   - "3.6"
 
 matrix:
@@ -10,8 +12,7 @@ matrix:
       sudo: true
 
 install:
-  - make build
+  - make setup
 
 script:
-  - make test
-  - codecov
+  - make test-unit

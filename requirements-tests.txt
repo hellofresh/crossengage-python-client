@@ -1,5 +1,0 @@
-unittest2
-mock
-pytest
-pytest-cov
-codecov

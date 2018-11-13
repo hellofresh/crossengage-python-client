@@ -1,9 +1,17 @@
 from setuptools import setup, find_packages
 
 NAME = "crossengage-client"
-VERSION = "1.1.1"
+VERSION = "1.2.0"
 
-REQUIRES = []
+REQUIRES = [
+    'requests==2.20.1',
+]
+
+EXTRAS = {
+    'dev': [
+        'tox',
+    ],
+}
 
 setup(
     name=NAME,
@@ -12,6 +20,7 @@ setup(
     author_email="azh@hellofresh.com",
     keywords=["HelloFresh", "Crossengage", "CRM"],
     install_requires=REQUIRES,
+    extras_require=EXTRAS,
     packages=find_packages(exclude=('tests',)),
     license='MIT',
     classifiers=[
