@@ -13,9 +13,6 @@ build:
 
 setup: clean virtualenv requirements test-requirements
 
-test:
-	tox
-
 test-unit:
 	. $(CURDIR)/env/bin/activate; \
 	tox
