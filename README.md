@@ -39,7 +39,7 @@ Library supports next methods:
 
 ### How to install
 
-Make sure you have Python 2.7.11+ installed and run:
+Make sure you have Python 2.7.11+ or Python 3.4+ installed and run:
 
 ```
 $ git clone git@github.com:hellofresh/crossengage-python-client.git
@@ -66,9 +66,9 @@ response = client.update_user(user={
 })
 
 if response['success']:
-    print 'Create / Update Successful!'
+    print('Create / Update Successful!')
 else:
-    print response['errors']
+    print(response['errors'])
 
 ```
 For more examples, check `examples.py`.
@@ -77,4 +77,4 @@ For more examples, check `examples.py`.
 
 To run the unit tests, make sure you have the [nose](http://nose.readthedocs.org/) module instaled and run the following from the repository root directory:
 
-`$ make build && make test`
+`$ make setup && make test`

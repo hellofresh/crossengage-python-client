@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import json
 import logging
 
@@ -5,6 +7,7 @@ import requests
 from requests.exceptions import RequestException
 
 from crossengage.utils import update_dict
+
 
 class CrossengageClient(object):
     """

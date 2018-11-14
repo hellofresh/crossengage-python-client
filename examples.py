@@ -14,9 +14,9 @@ response = client.update_user(user={
 })
 
 if response['success']:
-    print 'Create / Update Successful!'
+    print('Create / Update Successful!')
 else:
-    print response['errors']
+    print(response['errors'])
 
 # 2. Bulk create - update
 user1 = {
@@ -43,17 +43,17 @@ users = [user1, user2]
 response = client.update_users_bulk(users=users)
 for data in response['updated']:
     if data['success']:
-        print 'BULK #' + data['id'] + ' success'
+        print('BULK #' + data['id'] + ' success')
     else:
-        print 'BULK #' + data['id'] + ' FAIL'
-        print data['errors']
+        print('BULK #' + data['id'] + ' FAIL')
+        print(data['errors'])
 
 # 3. Delete user
 response = client.delete_user(user={'id': '1'})
 if response['status_code'] == 204:
-    print '#1 Deleted successful!'
+    print('#1 Deleted successful!')
 else:
-    print 'Something went wrong via DELETE request'
+    print('Something went wrong via DELETE request')
 
 # 4. Trying to update with invalid field, API should return error
 response = client.update_user(user={
@@ -68,25 +68,25 @@ response = client.update_user(user={
 })
 
 if response['success']:
-    print '# 1 Updated with invalid fields successful!'
+    print('# 1 Updated with invalid fields successful!')
 else:
-    print response['errors']
+    print(response['errors'])
 
 # 5. Add new user attributes
 response = client.add_user_attribute('silos', client.ATTRIBUTE_ARRAY, client.ATTRIBUTE_STRING)
 
 if response['success']:
-    print 'Added user attribute `silos` successful!'
+    print('Added user attribute `silos` successful!')
 else:
-    print response['errors']
+    print(response['errors'])
 
 # 6. List user attributes
 response = client.list_user_attributes(offset=37, limit=10)
 if response['status_code'] == 200:
-    print 'Got list user attributes successful!'
-    print response['attributes']
+    print('Got list user attributes successful!')
+    print(response['attributes'])
 else:
-    print response['errors']
+    print(response['errors'])
 
 # 7. Add nested attribute
-print client.add_nested_user_attribute('nested_attribute', 'main_attribute', client.ATTRIBUTE_STRING)
+print(client.add_nested_user_attribute('nested_attribute', 'main_attribute', client.ATTRIBUTE_STRING))

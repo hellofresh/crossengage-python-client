@@ -1,17 +1,30 @@
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  test       to run unit tests"
-	@echo "  build      to install requirements for development"
+	@echo "  setup      to install requirements for development"
+	@echo "  build      to create a build directory for deployment"
 
-build: requirements test-requirements
+build:
+	@printf "$(OK_COLOR)==> Building$(NO_COLOR)\n"
+	@mkdir -p "${BUILD_DIR}"
+	@for SOURCE in crossengage setup.py; do \
+		cp -r "$${SOURCE}" "${BUILD_DIR}/$${SOURCE}"; \
+	done
 
-test: unittests
+setup: clean virtualenv requirements test-requirements
 
-unittests:
-	PYTHONPATH=$(CURDIR) nosetests -d -w tests -v --with-coverage --cover-package ./crossengage
+test-unit:
+	. $(CURDIR)/env/bin/activate; \
+	tox
+
+virtualenv:
+	virtualenv $(CURDIR)/env
+
+clean:
+	rm -rf $(CURDIR)/env
 
 requirements:
-	pip install -r requirements.txt
+	$(CURDIR)/env/bin/python setup.py develop
 
 test-requirements:
-	pip install -r test-requirements.txt
+	$(CURDIR)/env/bin/pip install tox
