@@ -39,7 +39,7 @@ Library supports next methods:
 
 ### How to install
 
-Make sure you have Python 2.7.11+ or Python 3.7+ installed and run:
+Make sure you have Python 2.7.11+ or Python 3.4+ installed and run:
 
 ```
 $ git clone git@github.com:hellofresh/crossengage-python-client.git
