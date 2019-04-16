@@ -364,18 +364,20 @@ class CrossengageClient(object):
         self.request_url = "{0}/{1}/{2}/{3}".format(self.API_URL, self.USER_ENDPOINT, user_id, self.OPTOUT_ENDPOINT)
         return self.__create_request(payload={}, request_type=self.REQUEST_GET, version="v1")
 
-    def update_user_opt_out_status(self, user):
-        # type: (dict) -> dict
+    def update_user_opt_out_status(self, user_id, channel_name):
+        # type: (str, str) -> dict
         """
         Fetch User Opt-Out status by id.
-        :param user: dict of payload (id, email, businessUnit, firstName, lastName, birthday, createdAt, gender, silo)
+        :param user_id: User ID
+        :param channel_name: Name of the channel to opt out user from. It has to be one of MAIL, BROWSER_NOTIFICATION,
+                             ONSITE_DISPLAY, EXIT_INTENT, PUSH_NOTIFICATION, DIRECT_MAIL or SMS
         :return: json dict response, for example:
             {
                 "optOut": true
             }
         """
         self.request_url = "{0}/{1}/{2}/{3}?channelType={4}".format(
-            self.API_URL, self.USER_ENDPOINT, user['id'], self.OPTOUT_ENDPOINT, user['silo']
+            self.API_URL, self.USER_ENDPOINT, user_id, self.OPTOUT_ENDPOINT, channel_name
         )
         return self.__create_request(payload={"optOut": True}, request_type=self.REQUEST_PUT, version="v1")
 
