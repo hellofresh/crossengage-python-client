@@ -56,7 +56,7 @@ class TestCrossengageClient(unittest.TestCase):
             'birthday': '1991-11-07',
             'createdAt': '2015-10-02T08:23:53Z',
             'gender': 'male',
-            'silo': 'MAIL'
+            'channel': 'MAIL'
         }
         self.default_headers_api_v1 = {
             'X-XNG-AuthToken': 'SOME_TOKEN',
@@ -668,11 +668,11 @@ class TestCrossengageClient(unittest.TestCase):
         self.client.requests = requests
 
         # WHEN
-        result = self.client.update_user_opt_out_status(self.user)
+        result = self.client.update_user_opt_out_status(self.user['id'], self.user['channel'])
 
         # THEN
         requests.put.assert_called_once_with(
-            self.CROSSENGAGE_URL + 'users/1234/optout-status?channelType=' + self.user['silo'],
+            self.CROSSENGAGE_URL + 'users/1234/optout-status?channelType=' + self.user['channel'],
             data='{"optOut": true}',
             headers=self.default_headers_api_v1,
             timeout=30
