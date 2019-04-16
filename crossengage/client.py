@@ -55,6 +55,7 @@ class CrossengageClient(object):
     USER_BULK_ENDPOINT = "{0}/batch".format(USER_ENDPOINT)
     TRACK_USER_TASK_ENDPOINT = "{0}/track".format(USER_ENDPOINT)
     EVENTS_ENDPOINT = 'events'
+    OPTOUT_ENDPOINT = 'optout-status'
 
     REQUEST_GET = 'get'
     REQUEST_PUT = 'put'
@@ -349,6 +350,34 @@ class CrossengageClient(object):
             body = None
 
         return r.status_code, body
+
+    def get_user_opt_out_status(self, user_id):
+        # type: (str) -> dict
+        """
+        Fetch User Opt-Out status by id.
+        :param user_id: User external ID
+        :return: json dict response, for example:
+            {
+                "optOut": false
+            }
+        """
+        self.request_url = "{0}/{1}/{2}/{3}".format(self.API_URL, self.USER_ENDPOINT, user_id, self.OPTOUT_ENDPOINT)
+        return self.__create_request(payload={}, request_type=self.REQUEST_GET, version="v1")
+
+    def update_user_opt_out_status(self, user):
+        # type: (dict) -> dict
+        """
+        Fetch User Opt-Out status by id.
+        :param user: dict of payload (id, email, businessUnit, firstName, lastName, birthday, createdAt, gender, silo)
+        :return: json dict response, for example:
+            {
+                "optOut": true
+            }
+        """
+        self.request_url = "{0}/{1}/{2}/{3}?channelType={4}".format(
+            self.API_URL, self.USER_ENDPOINT, user['id'], self.OPTOUT_ENDPOINT, user['silo']
+        )
+        return self.__create_request(payload={"optOut": True}, request_type=self.REQUEST_PUT, version="v1")
 
     def __create_request(self, payload, request_type, version):
         headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS[version]})
