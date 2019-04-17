@@ -55,6 +55,7 @@ class CrossengageClient(object):
     USER_BULK_ENDPOINT = "{0}/batch".format(USER_ENDPOINT)
     TRACK_USER_TASK_ENDPOINT = "{0}/track".format(USER_ENDPOINT)
     EVENTS_ENDPOINT = 'events'
+    OPTOUT_ENDPOINT = 'optout-status'
 
     REQUEST_GET = 'get'
     REQUEST_PUT = 'put'
@@ -349,6 +350,53 @@ class CrossengageClient(object):
             body = None
 
         return r.status_code, body
+
+    def get_user_opt_out_status(self, user_id):
+        # type: (str) -> dict
+        """
+        Fetch User Opt-Out status by id.
+        :param user_id: User external ID
+        :return: json dict response, for example:
+            {
+                "optOut": false
+            }
+        """
+        self.request_url = "{0}/{1}/{2}/{3}".format(self.API_URL, self.USER_ENDPOINT, user_id, self.OPTOUT_ENDPOINT)
+        return self.__create_request(payload={}, request_type=self.REQUEST_GET, version="v1")
+
+    def update_user_opt_out_status(self, user_id, channel_name):
+        # type: (str, str) -> dict
+        """
+        Fetch User Opt-Out status by id.
+        :param user_id: User ID
+        :param channel_name: Name of the channel to opt out user from. It has to be one of MAIL, BROWSER_NOTIFICATION,
+                             ONSITE_DISPLAY, EXIT_INTENT, PUSH_NOTIFICATION, DIRECT_MAIL or SMS
+        :return: json dict response, for example:
+            {
+                "optOut": true
+            }
+        """
+        self.request_url = "{0}/{1}/{2}/{3}?channelType={4}".format(
+            self.API_URL, self.USER_ENDPOINT, user_id, self.OPTOUT_ENDPOINT, channel_name
+        )
+        return self.__create_request(payload={"optOut": True}, request_type=self.REQUEST_PUT, version="v1")
+
+    def update_user_opt_in_status(self, user_id, channel_name):
+        # type: (str, str) -> dict
+        """
+        Fetch User Opt-In status by id.
+        :param user_id: User ID
+        :param channel_name: Name of the channel to opt in user to. It has to be one of MAIL, BROWSER_NOTIFICATION,
+                             ONSITE_DISPLAY, EXIT_INTENT, PUSH_NOTIFICATION, DIRECT_MAIL or SMS
+        :return: json dict response, for example:
+            {
+                "optOut": false
+            }
+        """
+        self.request_url = "{0}/{1}/{2}/{3}?channelType={4}".format(
+            self.API_URL, self.USER_ENDPOINT, user_id, self.OPTOUT_ENDPOINT, channel_name
+        )
+        return self.__create_request(payload={"optOut": False}, request_type=self.REQUEST_PUT, version="v1")
 
     def __create_request(self, payload, request_type, version):
         headers = update_dict(self.default_headers, {self.API_VERSION_HEADER: self.API_VERSIONS[version]})

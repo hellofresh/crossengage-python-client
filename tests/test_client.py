@@ -56,6 +56,7 @@ class TestCrossengageClient(unittest.TestCase):
             'birthday': '1991-11-07',
             'createdAt': '2015-10-02T08:23:53Z',
             'gender': 'male',
+            'channel': 'MAIL'
         }
         self.default_headers_api_v1 = {
             'X-XNG-AuthToken': 'SOME_TOKEN',
@@ -625,3 +626,83 @@ class TestCrossengageClient(unittest.TestCase):
         )
 
         self.assertEqual(result, (codes.not_found, None))
+
+    def test_get_user_opt_out_status(self):
+        """Crossengage returns status code 200"""
+        # GIVEN
+        expected_response = self.user.copy()
+        expected_response.update({"status_code": codes.ok})
+        response = Mock(status_code=codes.ok)
+        response.json.return_value = expected_response
+        requests = Mock()
+        requests.get.return_value = response
+
+        requests = Mock()
+        requests.get.return_value = response
+        self.client.requests = requests
+
+        # WHEN
+        result = self.client.get_user_opt_out_status(self.user['id'])
+
+        # THEN
+        requests.get.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/1234/optout-status',
+            headers=self.default_headers_api_v1,
+            timeout=30
+        )
+
+        self.assertEqual(expected_response, result)
+
+    def test_update_user_opt_out_status(self):
+        """Crossengage returns status code 200"""
+        # GIVEN
+        expected_response = self.user.copy()
+        expected_response.update({"status_code": codes.ok})
+        response = Mock(status_code=codes.ok)
+        response.json.return_value = expected_response
+        requests = Mock()
+        requests.get.return_value = response
+
+        requests = Mock()
+        requests.put.return_value = response
+        self.client.requests = requests
+
+        # WHEN
+        result = self.client.update_user_opt_out_status(self.user['id'], self.user['channel'])
+
+        # THEN
+        requests.put.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/1234/optout-status?channelType=' + self.user['channel'],
+            data='{"optOut": true}',
+            headers=self.default_headers_api_v1,
+            timeout=30
+        )
+
+        self.assertEqual(expected_response, result)
+
+    def test_update_user_opt_in_status(self):
+        """Crossengage returns status code 200"""
+        # GIVEN
+        expected_response = self.user.copy()
+        expected_response.update({"status_code": codes.ok})
+        response = Mock(status_code=codes.ok)
+        response.json.return_value = expected_response
+        requests = Mock()
+        requests.get.return_value = response
+
+        requests = Mock()
+        requests.put.return_value = response
+        self.client.requests = requests
+
+        # WHEN
+        result = self.client.update_user_opt_in_status(self.user['id'], self.user['channel'])
+
+        # THEN
+        requests.put.assert_called_once_with(
+            self.CROSSENGAGE_URL + 'users/1234/optout-status?channelType=' + self.user['channel'],
+            data='{"optOut": false}',
+            headers=self.default_headers_api_v1,
+            timeout=30
+        )
+
+        self.assertEqual(expected_response, result)

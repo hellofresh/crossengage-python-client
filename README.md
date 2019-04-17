@@ -34,6 +34,11 @@ Library supports next methods:
 **Events management**
 - `send_events(self, events, email=None, user_id=None, business_unit=None)` | v1
 
+**Opt-Out Management**
+ - `get_user_opt_out_status(self, user_id)` | v1
+ - `update_user_opt_out_status(self, user_id, channel_name)` | v1
+ - `update_user_opt_in_status(self, user_id, channel_name)` | v1
+
 ### Owner
 [Alexander Zhilyaev](mailto:azh@hellofresh.com)
 
