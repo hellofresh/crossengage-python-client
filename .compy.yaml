@@ -1,0 +1,19 @@
+# This is an auto-generated .comply.yaml metadata file to
+# setup a GitHub repo with the minimal required information.
+# You can update the commented attributes providing more
+# information about this repo
+#
+#
+# description: |
+#   Enter here a brief and useful information about this code base
+
+contact: ad-tech-squad@hellofresh.com
+known-name: crossengage-python-client
+squad: adtech
+tribe: conversions
+concourse-team: data-management.crm-data
+slack-channel: "#squad-adtech"
+jira_board: ADT
+
+ docs:
+- https://github.com/hellofresh/crossengage-python-client
