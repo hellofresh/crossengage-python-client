@@ -7,12 +7,13 @@
 # description: |
 #   Enter here a brief and useful information about this code base
 
- contact: squad-crm-data@hellofresh.com
+contact: ad-tech-squad@hellofresh.com
 known-name: crossengage-python-client
-squad: crm-data
-tribe: data-management
+squad: adtech
+tribe: conversions
 concourse-team: data-management.crm-data
-slack-channel: "#squad-crm-data"
+slack-channel: "#squad-adtech"
+jira_board: ADT
 
  docs:
 - https://github.com/hellofresh/crossengage-python-client
