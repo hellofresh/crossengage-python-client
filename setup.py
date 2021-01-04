@@ -4,7 +4,7 @@ NAME = "crossengage-client"
 VERSION = "1.2.0"
 
 REQUIRES = [
-    'requests==2.20.1',
+    'requests==2.22.0',
 ]
 
 EXTRAS = {
