@@ -15,5 +15,5 @@ concourse-team: data-management.crm-data
 slack-channel: "#squad-adtech"
 jira_board: ADT
 
- docs:
+docs:
 - https://github.com/hellofresh/crossengage-python-client
