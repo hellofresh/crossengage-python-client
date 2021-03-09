@@ -12,7 +12,7 @@ known-name: crossengage-python-client
 squad: adtech
 tribe: conversions
 concourse-team: data-management.crm-data
-slack-channel: "#squad-adtech"
+slack-channel: "#tribe-adtech"
 jira-project: ADT
 
 docs:
