@@ -13,7 +13,7 @@ squad: adtech
 tribe: conversions
 concourse-team: data-management.crm-data
 slack-channel: "#squad-adtech"
-jira_board: ADT
+jira-project: ADT
 
 docs:
 - https://github.com/hellofresh/crossengage-python-client
