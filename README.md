@@ -6,7 +6,6 @@
 
 # crossengage-python-client
 [![Build Status](https://travis-ci.org/hellofresh/crossengage-python-client.svg?branch=master)](https://travis-ci.org/hellofresh/crossengage-python-client)
-[![codecov](https://codecov.io/gh/hellofresh/crossengage-python-client/branch/master/graph/badge.svg)](https://codecov.io/gh/hellofresh/crossengage-python-client)
 
 Python client for [Crossengage's API](https://docs.crossengage.io)
 
