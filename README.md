@@ -7,6 +7,8 @@
 # crossengage-python-client
 [![Build Status](https://travis-ci.org/hellofresh/crossengage-python-client.svg?branch=master)](https://travis-ci.org/hellofresh/crossengage-python-client)
 
+ 🚨Info 🚨:  Project is deprecated and archived. Please fork archived repository to continue development on your own. 
+
 Python client for [Crossengage's API](https://docs.crossengage.io)
 
 Library supports next methods:
